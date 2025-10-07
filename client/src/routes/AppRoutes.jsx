@@ -1,32 +1,30 @@
-import Navbar from "../components/layout/Navbar"
-import Footer from "../components/layout/Footer"
-import {Router, Routes, Route } from 'react-router-dom'
-import Home from "../pages/Home"
-import NotFound from "../pages/NotFound"
-import ProductDetails from "../pages/ProductDetails"
-import Cart from "../pages/Cart"
-import Login from "../pages/Login"
-import Register from "../pages/Register"
-import Checkout from "../pages/Checkout"
+import Navbar from "../components/layout/Navbar";
+import Footer from "../components/layout/Footer";
+import { Routes, Route } from "react-router-dom";
+import Home from "../pages/Home";
+import NotFound from "../pages/NotFound";
+import ProductDetails from "../pages/ProductDetails";
+import Cart from "../pages/Cart";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import Checkout from "../pages/Checkout";
 
 const AppRoutes = () => {
   return (
-    <div>
-        <Router>
-            <Navbar />
-            <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='*' element={<NotFound />} />
-                <Route path='/product/:id' element={<ProductDetails />} />
-                <Route path='/cart' element={<Cart />} />
-                <Route path='/login' element={<Login />} />
-                <Route path='/register' element={<Register />} />
-                <Route path='/checkout' element={<Checkout />} />
-            </Routes>
-            <Footer />
-        </Router>
-    </div>
-  )
-}
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/checkout" element={<Checkout />} />
+      </Routes>
+      <Footer />
+    </>
+  );
+};
 
-export default AppRoutes
+export default AppRoutes;
