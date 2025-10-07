@@ -13,7 +13,7 @@ const ProductCard = () => {
             <div className="px-4 sm:px-5 pb-5">
                 <a href="#">
                     <h5 className="text-base sm:text-lg md:text-xl font-semibold tracking-tight text-gray-900 dark:text-white mb-3">
-                        Apple Watch Series 7 GPS, Aluminium Case, Starlight Sport
+                        Apple Watch
                     </h5>
                 </a>
                 <div className="flex items-center justify-between">
