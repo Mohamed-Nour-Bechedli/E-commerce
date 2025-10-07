@@ -1,27 +1,26 @@
 import { useState } from "react";
 import { FaUser, FaShoppingCart, FaSearch, FaBars, FaTimes } from "react-icons/fa";
+import Logo from "../../assets/logo.png"
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <nav className="bg-gray-50 border border-gray-200 rounded-lg shadow-sm">
+        <nav className="bg-gray-50 border border-gray-200 rounded-lg">
             <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
 
                 {/* Logo + Categories */}
-                <div className="flex items-center space-x-6">
-                    {/* Logo */}
-                    <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-10">
+                    <div className="flex items-center">
                         <img
-                            src="https://flowbite.com/docs/images/logo.svg"
+                            src={Logo}
                             alt="Shop Logo"
-                            className="h-8 w-auto"
+                            className="h-16 w-auto md:h-20 object-contain" 
                         />
-                        <span className="text-2xl font-semibold text-gray-800">ShopName</span>
                     </div>
 
-                    {/* Categories for desktop/tablet */}
-                    <ul className="hidden md:flex space-x-6 text-gray-700 font-medium ml-6">
+                    {/* Categories for desktop */}
+                    <ul className="hidden md:flex space-x-4 text-gray-700 font-medium">
                         <li>
                             <a href="#" className="hover:text-blue-600 transition">PC Gamers</a>
                         </li>
@@ -34,9 +33,8 @@ const Navbar = () => {
                     </ul>
                 </div>
 
-                {/* Desktop/tablet Search + Icons */}
+                {/* Desktop Search + Icons */}
                 <div className="hidden md:flex items-center space-x-6">
-                    {/* Search Bar */}
                     <div className="relative w-64">
                         <input
                             type="text"
@@ -45,8 +43,6 @@ const Navbar = () => {
                         />
                         <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     </div>
-
-                    {/* Icons */}
                     <div className="flex items-center space-x-4">
                         <button className="text-gray-700 hover:text-blue-600">
                             <FaUser size={20} />
@@ -85,7 +81,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Categories for mobile */}
-                    <ul className="flex flex-col space-y-2 text-gray-700 font-medium mt-2 ml-4">
+                    <ul className="flex flex-col space-y-2 text-gray-700 font-medium">
                         <li>
                             <a href="#" className="hover:text-blue-600 transition">PC Gamers</a>
                         </li>
