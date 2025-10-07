@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaUser, FaShoppingCart, FaSearch, FaBars, FaTimes } from "react-icons/fa";
 
-export default function Navbar() {
+const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -109,4 +109,6 @@ export default function Navbar() {
             )}
         </nav>
     );
-}
+};
+
+export default Navbar;
