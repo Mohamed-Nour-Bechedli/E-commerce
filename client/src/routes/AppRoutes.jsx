@@ -1,7 +1,7 @@
-// import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 // import Footer from "./components/layout/Footer";
-// import Home from "./pages/Home";
+import Home from "../pages/Home";
 // import NotFound from "./pages/NotFound";
 // import ProductDetails from "./pages/ProductDetails";
 // import Cart from "./pages/Cart";
@@ -13,16 +13,16 @@ const AppRoutes = () => {
     return (
         <div>
             <Navbar />
-            {/* <Routes>
+            <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="*" element={<NotFound />} />
+                {/* <Route path="*" element={<NotFound />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/checkout" element={<Checkout />} /> */}
             </Routes>
-            <Footer /> */}
+            {/* <Footer /> */}
         </div >
     )
 }
