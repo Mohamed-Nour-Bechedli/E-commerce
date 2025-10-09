@@ -1,35 +1,31 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { FaUser, FaShoppingCart, FaSearch, FaBars, FaTimes } from "react-icons/fa";
-import Logo from "../../assets/logo.png"
+import Logo from "../../assets/logo.png";
+import { CartContext } from "../../context/CartContext";
+import { AuthContext } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const { cartItems } = useContext(CartContext);
+    const { user, logout } = useContext(AuthContext);
+
+    const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
         <nav className="bg-gray-50 border border-gray-200 rounded-lg">
             <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-
                 {/* Logo + Categories */}
                 <div className="flex items-center space-x-10">
                     <div className="flex items-center">
-                        <img
-                            src={Logo}
-                            alt="Shop Logo"
-                            className="h-16 w-auto md:h-20 object-contain" 
-                        />
+                        <Link to="/">
+                            <img src={Logo} alt="Shop Logo" className="h-16 w-auto md:h-20 object-contain" />
+                        </Link>
                     </div>
-
-                    {/* Categories for desktop */}
                     <ul className="hidden md:flex space-x-4 text-gray-700 font-medium">
-                        <li>
-                            <a href="#" className="hover:text-blue-600 transition">PC Gamers</a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-blue-600 transition">Smartphones</a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-blue-600 transition">Accessories</a>
-                        </li>
+                        <li><Link to="#" className="hover:text-blue-600 transition">PC Gamers</Link></li>
+                        <li><Link to="#" className="hover:text-blue-600 transition">Smartphones</Link></li>
+                        <li><Link to="#" className="hover:text-blue-600 transition">Accessories</Link></li>
                     </ul>
                 </div>
 
@@ -44,15 +40,25 @@ const Navbar = () => {
                         <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     </div>
                     <div className="flex items-center space-x-4">
-                        <button className="text-gray-700 hover:text-blue-600">
+                        <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
                             <FaUser size={20} />
-                        </button>
-                        <button className="text-gray-700 hover:text-blue-600 relative">
+                        </Link>
+                        <Link to="/cart" className="text-gray-700 hover:text-blue-600 relative">
                             <FaShoppingCart size={20} />
-                            <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
-                                2
-                            </span>
-                        </button>
+                            {totalQuantity > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
+                                    {totalQuantity}
+                                </span>
+                            )}
+                        </Link>
+                        {user && (
+                            <button
+                                onClick={logout}
+                                className="text-gray-700 hover:text-red-500 text-sm ml-2"
+                            >
+                                Logout
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -70,7 +76,6 @@ const Navbar = () => {
             {/* Mobile Menu */}
             {isOpen && (
                 <div className="md:hidden px-4 pb-4 space-y-3">
-                    {/* Search bar for mobile */}
                     <div className="relative">
                         <input
                             type="text"
@@ -79,31 +84,31 @@ const Navbar = () => {
                         />
                         <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     </div>
-
-                    {/* Categories for mobile */}
                     <ul className="flex flex-col space-y-2 text-gray-700 font-medium">
-                        <li>
-                            <a href="#" className="hover:text-blue-600 transition">PC Gamers</a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-blue-600 transition">Smartphones</a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-blue-600 transition">Accessories</a>
-                        </li>
+                        <li><Link to="#" className="hover:text-blue-600 transition">PC Gamers</Link></li>
+                        <li><Link to="#" className="hover:text-blue-600 transition">Smartphones</Link></li>
+                        <li><Link to="#" className="hover:text-blue-600 transition">Accessories</Link></li>
                     </ul>
-
-                    {/* Icons */}
                     <div className="flex space-x-4 mt-2">
-                        <button className="text-gray-700 hover:text-blue-600">
+                        <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
                             <FaUser size={20} />
-                        </button>
-                        <button className="text-gray-700 hover:text-blue-600 relative">
+                        </Link>
+                        <Link to="/cart" className="text-gray-700 hover:text-blue-600 relative">
                             <FaShoppingCart size={20} />
-                            <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
-                                2
-                            </span>
-                        </button>
+                            {totalQuantity > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
+                                    {totalQuantity}
+                                </span>
+                            )}
+                        </Link>
+                        {user && (
+                            <button
+                                onClick={logout}
+                                className="text-gray-700 hover:text-red-500 text-sm ml-2"
+                            >
+                                Logout
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
