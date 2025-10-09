@@ -4,7 +4,7 @@ import Logo from "../../assets/logo.png";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
-import Cart from "../cart/Cart"; 
+import CartSidebar from "../cart/CartSidebar"; 
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false); 
@@ -46,7 +46,7 @@ const Navbar = () => {
                             <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
                                 <FaUser size={20} />
                             </Link>
-                            {/* Cart Icon Button */}
+                            {/* CartSidebar Icon Button */}
                             <button
                                 onClick={() => setIsCartOpen(true)}
                                 className="text-gray-700 hover:text-blue-600 relative"
@@ -124,8 +124,8 @@ const Navbar = () => {
                 )}
             </nav>
 
-            {/* Cart Sidebar */}
-            <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+            {/* CartSidebar Sidebar */}
+            <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
         </>
     );
 };

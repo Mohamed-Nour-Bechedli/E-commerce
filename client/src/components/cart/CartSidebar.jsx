@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { CartContext } from "../../context/CartContext";
 import { FaTimes, FaTrash } from "react-icons/fa";
 
-const Cart = ({ isOpen, onClose }) => {
+const CartSidebar = ({ isOpen, onClose }) => {
     const { cartItems, removeFromCart, total } = useContext(CartContext);
 
     return (
@@ -58,4 +58,4 @@ const Cart = ({ isOpen, onClose }) => {
     );
 };
 
-export default Cart;
+export default CartSidebar;
