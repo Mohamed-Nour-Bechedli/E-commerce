@@ -15,12 +15,12 @@ const AppRoutes = () => {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
-                {/* <Route path="*" element={<NotFound />} />
+                {/* <Route path="*" element={<NotFound />} /> */}
                 <Route path="/product/:id" element={<ProductDetails />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/checkout" element={<Checkout />} /> */}
+                {/* <Route path="/cart" element={<Cart />} /> */}
+                {/* <Route path="/login" element={<Login />} /> */}
+                {/* <Route path="/register" element={<Register />} /> */}
+                {/* <Route path="/checkout" element={<Checkout />} /> */}
             </Routes>
             {/* <Footer /> */}
         </div >
