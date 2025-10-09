@@ -7,7 +7,8 @@ import Loader from "../components/common/Loader";
 const Home = () => {
     const { products, loading } = useContext(ProductContext);
 
-    if (loading) return <Loader />; // show loader while fetching
+    // show loader while fetching
+    if (loading) return <Loader />; 
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -47,7 +48,7 @@ const Home = () => {
             </div>
 
             {/* Products Section */}
-            <ProductList /> {/* already uses ProductContext */}
+            <ProductList /> 
         </div>
     );
 };
