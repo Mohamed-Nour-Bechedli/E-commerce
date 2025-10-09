@@ -2,20 +2,59 @@ import { FaShoppingCart, FaArrowLeft } from "react-icons/fa";
 import { Link, useParams } from "react-router-dom";
 
 const ProductDetails = () => {
-    // static mock data until backend is ready
     const { id } = useParams();
 
-    // Example product data 
-    const product = {
-        id,
-        name: "Apple Watch Series 9",
-        price: 599,
-        image: "https://via.placeholder.com/500x400?text=Apple+Watch",
-        description:
-            "The Apple Watch Series 9 brings faster performance, advanced health features, and an always-on Retina display. Track your workouts, heart rate, and more with precision and style.",
-        category: "Smartwatches",
-        stock: 12,
-    };
+    // Temporary product list 
+    const products = [
+        {
+            id: "1",
+            name: "Apple Watch Series 9",
+            price: 599,
+            image: "https://via.placeholder.com/500x400?text=Apple+Watch",
+            description:
+                "The Apple Watch Series 9 brings faster performance, advanced health features, and an always-on Retina display. Track your workouts, heart rate, and more with precision and style.",
+            category: "Smartwatches",
+            stock: 12,
+        },
+        {
+            id: "2",
+            name: "Gaming Laptop",
+            price: 1299,
+            image: "https://via.placeholder.com/500x400?text=Gaming+Laptop",
+            description:
+                "A high-performance gaming laptop with RGB keyboard, RTX graphics, and advanced cooling for serious gamers.",
+            category: "Laptops",
+            stock: 5,
+        },
+        {
+            id: "3",
+            name: "Smartphone Pro X",
+            price: 999,
+            image: "https://via.placeholder.com/500x400?text=Smartphone+Pro+X",
+            description:
+                "The latest Smartphone Pro X with a stunning display, AI-powered camera, and ultra-fast 5G connectivity.",
+            category: "Smartphones",
+            stock: 8,
+        },
+    ];
+
+    // Find the product matching the route ID
+    const product = products.find((p) => p.id === id);
+
+    // Handle invalid product IDs
+    if (!product) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen text-center">
+                <h2 className="text-2xl font-semibold mb-4">Product not found</h2>
+                <Link
+                    to="/"
+                    className="text-blue-600 hover:text-blue-800 font-medium underline"
+                >
+                    Go back to Home
+                </Link>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-gray-50 min-h-screen">
