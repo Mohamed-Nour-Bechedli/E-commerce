@@ -4,115 +4,129 @@ import Logo from "../../assets/logo.png";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import Cart from "../cart/Cart"; 
 
 const Navbar = () => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false); 
+    const [isCartOpen, setIsCartOpen] = useState(false); 
     const { cartItems } = useContext(CartContext);
     const { user, logout } = useContext(AuthContext);
 
     const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
-        <nav className="bg-gray-50 border border-gray-200 rounded-lg">
-            <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-                {/* Logo + Categories */}
-                <div className="flex items-center space-x-10">
-                    <div className="flex items-center">
-                        <Link to="/">
-                            <img src={Logo} alt="Shop Logo" className="h-16 w-auto md:h-20 object-contain" />
-                        </Link>
+        <>
+            <nav className="bg-gray-50 border border-gray-200 rounded-lg">
+                <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+                    {/* Logo + Categories */}
+                    <div className="flex items-center space-x-10">
+                        <div className="flex items-center">
+                            <Link to="/">
+                                <img src={Logo} alt="Shop Logo" className="h-16 w-auto md:h-20 object-contain" />
+                            </Link>
+                        </div>
+                        <ul className="hidden md:flex space-x-4 text-gray-700 font-medium">
+                            <li><Link to="#" className="hover:text-blue-600 transition">PC Gamers</Link></li>
+                            <li><Link to="#" className="hover:text-blue-600 transition">Smartphones</Link></li>
+                            <li><Link to="#" className="hover:text-blue-600 transition">Accessories</Link></li>
+                        </ul>
                     </div>
-                    <ul className="hidden md:flex space-x-4 text-gray-700 font-medium">
-                        <li><Link to="#" className="hover:text-blue-600 transition">PC Gamers</Link></li>
-                        <li><Link to="#" className="hover:text-blue-600 transition">Smartphones</Link></li>
-                        <li><Link to="#" className="hover:text-blue-600 transition">Accessories</Link></li>
-                    </ul>
-                </div>
 
-                {/* Desktop Search + Icons */}
-                <div className="hidden md:flex items-center space-x-6">
-                    <div className="relative w-64">
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
-                            <FaUser size={20} />
-                        </Link>
-                        <Link to="/cart" className="text-gray-700 hover:text-blue-600 relative">
-                            <FaShoppingCart size={20} />
-                            {totalQuantity > 0 && (
-                                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
-                                    {totalQuantity}
-                                </span>
-                            )}
-                        </Link>
-                        {user && (
+                    {/* Desktop Search + Icons */}
+                    <div className="hidden md:flex items-center space-x-6">
+                        <div className="relative w-64">
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
+                                <FaUser size={20} />
+                            </Link>
+                            {/* Cart Icon Button */}
                             <button
-                                onClick={logout}
-                                className="text-gray-700 hover:text-red-500 text-sm ml-2"
+                                onClick={() => setIsCartOpen(true)}
+                                className="text-gray-700 hover:text-blue-600 relative"
                             >
-                                Logout
+                                <FaShoppingCart size={20} />
+                                {totalQuantity > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
+                                        {totalQuantity}
+                                    </span>
+                                )}
                             </button>
-                        )}
-                    </div>
-                </div>
-
-                {/* Mobile Hamburger */}
-                <div className="md:hidden flex items-center">
-                    <button
-                        className="text-gray-700 hover:text-blue-600"
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-                    </button>
-                </div>
-            </div>
-
-            {/* Mobile Menu */}
-            {isOpen && (
-                <div className="md:hidden px-4 pb-4 space-y-3">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                    </div>
-                    <ul className="flex flex-col space-y-2 text-gray-700 font-medium">
-                        <li><Link to="#" className="hover:text-blue-600 transition">PC Gamers</Link></li>
-                        <li><Link to="#" className="hover:text-blue-600 transition">Smartphones</Link></li>
-                        <li><Link to="#" className="hover:text-blue-600 transition">Accessories</Link></li>
-                    </ul>
-                    <div className="flex space-x-4 mt-2">
-                        <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
-                            <FaUser size={20} />
-                        </Link>
-                        <Link to="/cart" className="text-gray-700 hover:text-blue-600 relative">
-                            <FaShoppingCart size={20} />
-                            {totalQuantity > 0 && (
-                                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
-                                    {totalQuantity}
-                                </span>
+                            {user && (
+                                <button
+                                    onClick={logout}
+                                    className="text-gray-700 hover:text-red-500 text-sm ml-2"
+                                >
+                                    Logout
+                                </button>
                             )}
-                        </Link>
-                        {user && (
-                            <button
-                                onClick={logout}
-                                className="text-gray-700 hover:text-red-500 text-sm ml-2"
-                            >
-                                Logout
-                            </button>
-                        )}
+                        </div>
+                    </div>
+
+                    {/* Mobile Hamburger */}
+                    <div className="md:hidden flex items-center">
+                        <button
+                            className="text-gray-700 hover:text-blue-600"
+                            onClick={() => setIsOpen(!isOpen)}
+                        >
+                            {isOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                        </button>
                     </div>
                 </div>
-            )}
-        </nav>
+
+                {/* Mobile Menu */}
+                {isOpen && (
+                    <div className="md:hidden px-4 pb-4 space-y-3">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                        </div>
+                        <ul className="flex flex-col space-y-2 text-gray-700 font-medium">
+                            <li><Link to="#" className="hover:text-blue-600 transition">PC Gamers</Link></li>
+                            <li><Link to="#" className="hover:text-blue-600 transition">Smartphones</Link></li>
+                            <li><Link to="#" className="hover:text-blue-600 transition">Accessories</Link></li>
+                        </ul>
+                        <div className="flex space-x-4 mt-2">
+                            <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
+                                <FaUser size={20} />
+                            </Link>
+                            <button
+                                onClick={() => setIsCartOpen(true)}
+                                className="text-gray-700 hover:text-blue-600 relative"
+                            >
+                                <FaShoppingCart size={20} />
+                                {totalQuantity > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full px-1">
+                                        {totalQuantity}
+                                    </span>
+                                )}
+                            </button>
+                            {user && (
+                                <button
+                                    onClick={logout}
+                                    className="text-gray-700 hover:text-red-500 text-sm ml-2"
+                                >
+                                    Logout
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </nav>
+
+            {/* Cart Sidebar */}
+            <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        </>
     );
 };
 
