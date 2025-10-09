@@ -1,12 +1,5 @@
 import { useState, useContext } from "react";
-import {
-    FaUser,
-    FaShoppingCart,
-    FaSearch,
-    FaBars,
-    FaTimes,
-    FaChevronDown,
-} from "react-icons/fa";
+import { FaUser, FaShoppingCart, FaSearch, FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 import Logo from "../../assets/logo.png";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
