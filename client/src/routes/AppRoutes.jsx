@@ -3,7 +3,7 @@ import Navbar from "../components/layout/Navbar";
 // import Footer from "./components/layout/Footer";
 import Home from "../pages/Home";
 // import NotFound from "./pages/NotFound";
-// import ProductDetails from "./pages/ProductDetails";
+import ProductDetails from "../pages/ProductDetails";
 // import Cart from "./pages/Cart";
 // import Login from "./pages/Login";
 // import Register from "./pages/Register";
