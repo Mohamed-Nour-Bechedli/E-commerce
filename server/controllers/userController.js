@@ -18,18 +18,18 @@ const register = async (req, res) => {
     const { name, email, password } = req.body;
     try {
         const existingUser = await User.findOne({ email });
-        if(existingUser) {
-            return res.status(400).json({ message : "User already exists!" });
+        if (existingUser) {
+            return res.status(400).json({ message: "User already exists!" });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn : '1h' });
+        const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         const newUser = await new User({
             name,
             email,
-            password : hashedPassword,
-            verified : false
+            password: hashedPassword,
+            verified: false
         }).save();
 
         const verifyURL = `${process.env.CLIENT_URL}/verify/${verificationToken}`;
@@ -37,16 +37,76 @@ const register = async (req, res) => {
         // Send verification email
         const sendVerificationEmail = async () => {
             await transporter.sendMail({
-                from : process.env.EMAIL_USER,
-                to : newUser.email,
-                subject : "verify your email",
-                html : `<h3>Click <a href="${verifyURL}">here</a> to verify your email</h3>` 
+                from: process.env.EMAIL_USER,
+                to: newUser.email,
+                subject: "verify your email",
+                html: `<h3>Click <a href="${verifyURL}">here</a> to verify your email</h3>`
             })
         };
 
         sendVerificationEmail();
 
-        res.status(201).json({ message : "User registered successfully! Please verify your email to login." });
+        res.status(201).json({ message: "User registered successfully! Please verify your email to login." });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+// Verify user email
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        // Decode token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Find user by email only
+        const user = await User.findOne({ email: decoded.email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.verified) {
+            return res.status(400).json({ message: "Email is already verified" });
+        }
+
+        // Mark as verified
+        user.verified = true;
+        user.verificationToken = null;
+        await user.save();
+
+        res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+        if (error.name === "TokenExpiredError") {
+            return res.status(400).json({ message: "Verification link expired" });
+        }
+        res.status(400).json({ message: "Invalid verification token" });
+    }
+};
+
+// Login user
+const login = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if(!user){
+            return res.status(400).json({ message : "Invalid credentials" });
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+        if(!validPassword){
+            return res.status(400).json({ message : "Invalid credentials" });
+        }
+
+        const token = jwt.sign({
+            _id: user._id,
+            name : user.name,
+            email : user.email,
+            role : user.role,
+            image : user.image
+        }, process.env.JWT_SECRET, { expiresIn : '1h' });
+
+        res.status(200).json({ token, message : "Login sucessful"})
     } catch (error) {
         res.status(500).json({ message : "Server error", error : error.message });
     }
