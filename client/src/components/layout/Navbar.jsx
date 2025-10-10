@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
     FaUser,
     FaShoppingCart,
@@ -10,34 +10,110 @@ import {
 import Logo from "../../assets/logo.png";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CartSidebar from "../cart/CartSidebar";
+import { ProductContext } from "../../context/ProductContext";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
 
     const { cartItems } = useContext(CartContext);
     const { user, logout } = useContext(AuthContext);
+    const { products } = useContext(ProductContext);
+    const navigate = useNavigate();
 
     const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
     const categories = [
-        {
-            name: "PC Gamers",
-            products: ["Gaming Laptop", "Custom PC Build", "Monitors"],
-        },
-        {
-            name: "Smartphones",
-            products: ["iPhone 15", "Samsung Galaxy S24", "OnePlus 12"],
-        },
-        {
-            name: "Accessories",
-            products: ["Keyboard", "Mouse", "Headphones"],
-        },
+        { name: "PC Gamers", products: ["Gaming Laptop", "Custom PC Build", "Monitors"] },
+        { name: "Smartphones", products: ["iPhone 15", "Samsung Galaxy S24", "OnePlus 12"] },
+        { name: "Accessories", products: ["Keyboard", "Mouse", "Headphones"] },
     ];
+
+    // FILTER SEARCH RESULTS
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setSearchResults([]);
+            return;
+        }
+        const query = searchQuery.toLowerCase();
+
+        const productMatches = products.filter((p) =>
+            p.name.toLowerCase().includes(query)
+        );
+
+        const categoryMatches = categories.filter((c) =>
+            c.name.toLowerCase().includes(query)
+        );
+
+        setSearchResults([...categoryMatches, ...productMatches]);
+    }, [searchQuery, products]);
+
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        if (!searchQuery.trim()) return;
+
+        const category = categories.find(
+            (c) => c.name.toLowerCase() === searchQuery.toLowerCase()
+        );
+        if (category) {
+            navigate(`/category/${encodeURIComponent(category.name)}`);
+        } else {
+            const product = products.find(
+                (p) => p.name.toLowerCase() === searchQuery.toLowerCase()
+            );
+            if (product) navigate(`/product/${product.id}`);
+        }
+
+        setSearchQuery("");
+        setSearchResults([]);
+        setShowSearch(false);
+    };
+
+    const renderSuggestion = (item) => {
+        const isCategory = item.products !== undefined;
+        const linkTo = isCategory
+            ? `/category/${encodeURIComponent(item.name)}`
+            : `/product/${item.id}`;
+
+        return (
+            <div
+                key={isCategory ? `cat-${item.name}` : `prod-${item.id}`}
+                className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                onClick={() => {
+                    navigate(linkTo);
+                    setSearchQuery("");
+                    setSearchResults([]);
+                    setShowSearch(false);
+                }}
+            >
+                {isCategory ? (
+                    <div className="flex-1 font-semibold text-gray-700">
+                        Category: {item.name}
+                    </div>
+                ) : (
+                    <>
+                        <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-10 h-10 object-cover rounded mr-3"
+                        />
+                        <div className="flex-1">
+                            <div className="text-gray-800 font-medium">{item.name}</div>
+                            <div className="text-gray-500 text-sm">
+                                {item.category} - ${item.price.toFixed(2)}
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
+        );
+    };
 
     return (
         <>
@@ -96,14 +172,29 @@ const Navbar = () => {
                     {/* Right: Search + Icons */}
                     <div className="flex items-center space-x-4">
                         {/* Search bar (desktop) */}
-                        <div className="hidden md:block relative w-64">
+                        <form
+                            onSubmit={handleSearchSubmit}
+                            className="hidden md:block relative w-64"
+                        >
                             <input
                                 type="text"
                                 placeholder="Search..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
-                            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                        </div>
+                            <FaSearch
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                onClick={handleSearchSubmit}
+                            />
+
+                            {/* Suggestions dropdown */}
+                            {searchResults.length > 0 && (
+                                <div className="absolute top-full left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-1 z-50 max-h-72 overflow-y-auto">
+                                    {searchResults.map(renderSuggestion)}
+                                </div>
+                            )}
+                        </form>
 
                         {/* Search icon (mobile) */}
                         <button
@@ -113,7 +204,7 @@ const Navbar = () => {
                             <FaSearch size={20} />
                         </button>
 
-                        {/* Account icon (auth-aware) */}
+                        {/* Account icon */}
                         <Link
                             to={user ? "/profile" : "/login"}
                             className="text-gray-700 hover:text-blue-600"
@@ -134,7 +225,6 @@ const Navbar = () => {
                             )}
                         </button>
 
-                        {/* Logout (only when logged in) */}
                         {user && (
                             <button
                                 onClick={logout}
@@ -156,16 +246,28 @@ const Navbar = () => {
 
                 {/* Search bar for mobile */}
                 {showSearch && (
-                    <div className="md:hidden px-4 pb-3 animate-fadeIn">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                            <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                        </div>
-                    </div>
+                    <form
+                        onSubmit={handleSearchSubmit}
+                        className="md:hidden px-4 pb-3 animate-fadeIn relative"
+                    >
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <FaSearch
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                            onClick={handleSearchSubmit}
+                        />
+
+                        {searchResults.length > 0 && (
+                            <div className="absolute top-full left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-1 z-50 max-h-72 overflow-y-auto">
+                                {searchResults.map(renderSuggestion)}
+                            </div>
+                        )}
+                    </form>
                 )}
 
                 {/* Mobile dropdown menu */}
