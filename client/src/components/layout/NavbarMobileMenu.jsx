@@ -1,8 +1,13 @@
-import { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { FaChevronDown } from "react-icons/fa";
 
-const NavbarMobileMenu = ({ categories, isOpen, activeDropdown, setActiveDropdown, setIsOpen }) => {
+const NavbarMobileMenu = ({
+    isOpen,
+    setIsOpen,
+    categories,
+    activeDropdown,
+    setActiveDropdown,
+}) => {
     if (!isOpen) return null;
 
     return (
