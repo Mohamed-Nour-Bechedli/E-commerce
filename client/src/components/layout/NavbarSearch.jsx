@@ -51,7 +51,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
         return (
             <div
                 key={isCategory ? `cat-${item.name}` : `prod-${item.id}`}
-                className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                className="flex items-center px-4 py-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
                 onClick={() => {
                     navigate(linkTo);
                     setSearchQuery("");
@@ -60,7 +60,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                 }}
             >
                 {isCategory ? (
-                    <div className="flex-1 font-semibold text-gray-700">
+                    <div className="flex-1 font-semibold text-gray-700 text-sm">
                         Category: {item.name}
                     </div>
                 ) : (
@@ -68,7 +68,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                         <img
                             src={item.image}
                             alt={item.name}
-                            className="w-10 h-10 object-cover rounded mr-3"
+                            className="w-12 h-12 object-cover rounded mr-3"
                         />
                         <div className="flex-1">
                             <div className="text-gray-800 font-medium">{item.name}</div>
@@ -84,7 +84,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
 
     return (
         <>
-            {/* Desktop Search: stays in right flex container */}
+            {/* Desktop Search */}
             <form
                 onSubmit={handleSearchSubmit}
                 className="hidden md:block relative w-64"
@@ -107,7 +107,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                 )}
             </form>
 
-            {/* Mobile Search: full width below navbar */}
+            {/* Mobile Search */}
             {showSearch && (
                 <form
                     onSubmit={handleSearchSubmit}
@@ -125,7 +125,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                         onClick={handleSearchSubmit}
                     />
                     {searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-1 z-50 max-h-72 overflow-y-auto">
+                        <div className="absolute top-full left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-2 z-50 max-h-72 overflow-y-auto">
                             {searchResults.map(renderSuggestion)}
                         </div>
                     )}
