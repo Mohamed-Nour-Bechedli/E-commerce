@@ -84,7 +84,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
 
     return (
         <>
-            {/* Desktop Search */}
+            {/* Desktop Search: stays in right flex container */}
             <form
                 onSubmit={handleSearchSubmit}
                 className="hidden md:block relative w-64"
@@ -97,10 +97,9 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                     className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <FaSearch
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
                     onClick={handleSearchSubmit}
                 />
-
                 {searchResults.length > 0 && (
                     <div className="absolute top-full left-0 w-full bg-white border border-gray-300 shadow-lg rounded-md mt-1 z-50 max-h-72 overflow-y-auto">
                         {searchResults.map(renderSuggestion)}
@@ -108,11 +107,11 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                 )}
             </form>
 
-            {/* Mobile Search */}
+            {/* Mobile Search: full width below navbar */}
             {showSearch && (
                 <form
                     onSubmit={handleSearchSubmit}
-                    className="md:hidden px-4 pb-3 animate-fadeIn relative"
+                    className="md:hidden w-full px-4 py-3 bg-gray-50 border-t border-gray-200 animate-fadeIn relative z-40"
                 >
                     <input
                         type="text"
@@ -122,7 +121,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                         className="w-full px-4 py-2 pr-10 text-sm border border-gray-300 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                     <FaSearch
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
                         onClick={handleSearchSubmit}
                     />
                     {searchResults.length > 0 && (
