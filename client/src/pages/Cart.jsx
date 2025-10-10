@@ -4,13 +4,16 @@ import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 
 const Cart = () => {
-    const { cartItems, removeFromCart, total, clearCart } = useContext(CartContext);
+    const { cartItems, removeFromCart, total, clearCart, updateQuantity } =
+        useContext(CartContext);
 
     if (cartItems.length === 0)
         return (
             <div className="max-w-4xl mx-auto px-4 py-10 text-center">
                 <h2 className="text-2xl font-bold mb-4">Your Cart is Empty</h2>
-                <Link to="/" className="text-blue-600 hover:underline">Go Shopping</Link>
+                <Link to="/" className="text-blue-600 hover:underline">
+                    Go Shopping
+                </Link>
             </div>
         );
 
@@ -19,11 +22,41 @@ const Cart = () => {
             <h2 className="text-3xl font-bold mb-6">Your Cart</h2>
             <div className="space-y-4">
                 {cartItems.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md">
-                        <img src={item.image} alt={item.name} className="w-24 h-24 object-contain" />
+                    <div
+                        key={item.id}
+                        className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md"
+                    >
+                        <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-24 h-24 object-contain"
+                        />
                         <div className="flex-1 px-4">
-                            <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                            <p className="text-gray-700">${item.price} x {item.quantity}</p>
+                            <h3 className="font-semibold text-gray-900">
+                                {item.name}
+                            </h3>
+                            <p className="text-gray-700">${item.price}</p>
+
+                            {/* Quantity selector */}
+                            <div className="flex items-center mt-2 space-x-2">
+                                <button
+                                    onClick={() =>
+                                        updateQuantity(item.id, item.quantity - 1)
+                                    }
+                                    className="bg-gray-200 px-2 rounded"
+                                >
+                                    -
+                                </button>
+                                <span>{item.quantity}</span>
+                                <button
+                                    onClick={() =>
+                                        updateQuantity(item.id, item.quantity + 1)
+                                    }
+                                    className="bg-gray-200 px-2 rounded"
+                                >
+                                    +
+                                </button>
+                            </div>
                         </div>
                         <button
                             onClick={() => removeFromCart(item.id)}
