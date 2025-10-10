@@ -3,16 +3,17 @@ import { FaShoppingCart, FaArrowLeft } from "react-icons/fa";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
 import { CartContext } from "../context/CartContext";
-import { AuthContext } from "../context/AuthContext"; 
+import { AuthContext } from "../context/AuthContext";
 import Modal from "../components/common/Modal";
+import ProductCard from "../components/products/ProductCard"; 
 
 const ProductDetails = () => {
     const { id } = useParams();
     const { products } = useContext(ProductContext);
     const { addToCart } = useContext(CartContext);
-    const { user } = useContext(AuthContext); 
+    const { user } = useContext(AuthContext);
     const [modalOpen, setModalOpen] = useState(false);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     const product = products.find((p) => p.id.toString() === id) || {
         name: "Loading...",
@@ -25,14 +26,18 @@ const ProductDetails = () => {
 
     const handleAddToCart = () => {
         if (!user) {
-            // Redirect to login if not logged in
             navigate("/login");
         } else {
             addToCart(product);
             setModalOpen(true);
-            navigate("/cart"); 
+            navigate("/cart");
         }
     };
+
+    // Related products logic
+    const relatedProducts = products.filter(
+        (p) => p.category === product.category && p.id !== product.id
+    );
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -70,6 +75,18 @@ const ProductDetails = () => {
                 <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Product Added!">
                     <p>The product has been added to your cart successfully.</p>
                 </Modal>
+
+                {/* RELATED PRODUCTS */}
+                {relatedProducts.length > 0 && (
+                    <div className="mt-16">
+                        <h2 className="text-2xl font-bold mb-6 text-gray-900">Related Products</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {relatedProducts.map((p) => (
+                                <ProductCard key={p.id} {...p} />
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
