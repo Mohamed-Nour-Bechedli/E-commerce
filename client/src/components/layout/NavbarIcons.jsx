@@ -1,10 +1,10 @@
-import { FaUser, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { FaUser, FaShoppingCart, FaBars, FaTimes, FaSearch } from "react-icons/fa";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 
-const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen }) => {
+const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen, showSearch, setShowSearch }) => {
     const { cartItems } = useContext(CartContext);
     const { user, logout } = useContext(AuthContext);
 
@@ -12,6 +12,14 @@ const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen }) => {
 
     return (
         <div className="flex items-center space-x-4">
+            {/* Mobile search icon */}
+            <button
+                className="md:hidden text-gray-700 hover:text-blue-600"
+                onClick={() => setShowSearch(!showSearch)}
+            >
+                <FaSearch size={20} />
+            </button>
+
             <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
                 <FaUser size={20} />
             </Link>
