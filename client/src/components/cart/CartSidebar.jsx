@@ -1,12 +1,12 @@
 import { useContext } from "react";
 import { CartContext } from "../../context/CartContext";
-import { AuthContext } from "../../context/AuthContext"; 
-import { FaTimes, FaPlus, FaMinus } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom"; 
+import { AuthContext } from "../../context/AuthContext";
+import { FaTimes, FaPlus, FaMinus, FaTrash } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 
 const CartSidebar = ({ isOpen, onClose }) => {
     const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
-    const { user } = useContext(AuthContext); 
+    const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleAdd = (item) => {
@@ -14,6 +14,15 @@ const CartSidebar = ({ isOpen, onClose }) => {
             navigate("/login");
         } else {
             addToCart(item);
+        }
+    };
+
+    const handleDecrement = (item) => {
+        if (item.quantity > 1) {
+            // decrease quantity by 1
+            addToCart({ ...item, quantity: -1 }); 
+        } else {
+            removeFromCart(item.id); 
         }
     };
 
@@ -44,7 +53,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                                 <p className="text-gray-500">${item.price}</p>
                                 <div className="flex items-center mt-2 space-x-2">
                                     <button
-                                        onClick={() => handleRemove(item)}
+                                        onClick={() => handleDecrement(item)}
                                         className="bg-gray-200 px-2 py-1 rounded-full hover:bg-gray-300"
                                     >
                                         <FaMinus />
@@ -55,6 +64,12 @@ const CartSidebar = ({ isOpen, onClose }) => {
                                         className="bg-gray-200 px-2 py-1 rounded-full hover:bg-gray-300"
                                     >
                                         <FaPlus />
+                                    </button>
+                                    <button
+                                        onClick={() => handleRemove(item)}
+                                        className="ml-2 text-red-600 hover:text-red-800"
+                                    >
+                                        <FaTrash />
                                     </button>
                                 </div>
                             </div>
