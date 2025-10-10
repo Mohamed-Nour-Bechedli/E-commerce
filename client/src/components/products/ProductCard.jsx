@@ -1,68 +1,38 @@
 import { FaShoppingCart } from "react-icons/fa";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
+import { CartContext } from "../../context/CartContext";
 
-const ProductCard = ({ id, name, price, salePrice, image, isNew }) => {
-    const isOnSale = salePrice && salePrice < price;
+const ProductCard = ({ id, name, price, image, stock }) => {
+    const { addToCart } = useContext(CartContext);
 
     return (
-        <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 dark:bg-gray-800 dark:border-gray-700 mx-auto sm:mx-0 relative">
-
-            {/* Sale / New Badge */}
-            {isOnSale && (
-                <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                    SALE
-                </span>
-            )}
-            {!isOnSale && isNew && (
-                <span className="absolute top-3 left-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                    NEW
-                </span>
-            )}
-
-            {/* Product image links to details */}
-            <Link to={`/product/${id}`}>
+        <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+            {/* Image and name now wrapped with Link */}
+            <Link to={`/product/${id}`} className="flex-1">
                 <img
-                    className="p-4 sm:p-6 rounded-t-lg object-contain h-48 sm:h-60 w-full"
                     src={image}
                     alt={name}
+                    className="w-full h-56 object-cover hover:scale-105 transition-transform duration-300"
                 />
+                <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">{name}</h3>
+                    <p className="text-blue-600 font-bold text-lg">${price}</p>
+                    <p className={`text-sm ${stock > 0 ? "text-green-600" : "text-red-500"}`}>
+                        {stock > 0 ? `${stock} in stock` : "Out of stock"}
+                    </p>
+                </div>
             </Link>
 
-            <div className="px-4 sm:px-5 pb-5">
-                <Link to={`/product/${id}`}>
-                    <h5 className="text-base sm:text-lg md:text-xl font-semibold tracking-tight text-gray-900 dark:text-white mb-3 hover:text-blue-600 transition line-clamp-1">
-                        {name}
-                    </h5>
-                </Link>
-
-                <div className="flex items-center justify-between">
-                    {/* Price Section */}
-                    <div>
-                        {isOnSale ? (
-                            <div className="flex items-center gap-2">
-                                <span className="text-gray-500 line-through text-sm">
-                                    ${price}
-                                </span>
-                                <span className="text-red-600 font-bold text-xl">
-                                    ${salePrice}
-                                </span>
-                            </div>
-                        ) : (
-                            <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                                ${price}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Add to cart */}
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white p-2 sm:p-3 rounded-full transition-all duration-200 shadow-md hover:shadow-lg">
-                        <FaShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </button>
-                </div>
-            </div>
+            {/* Add to Cart button */}
+            <button
+                onClick={() => addToCart({ id, name, price, image, quantity: 1 })}
+                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 m-4 rounded-full flex items-center justify-center transition-all duration-300"
+            >
+                <FaShoppingCart className="mr-2" /> Add to Cart
+            </button>
         </div>
     );
 };
 
 export default ProductCard;
-
