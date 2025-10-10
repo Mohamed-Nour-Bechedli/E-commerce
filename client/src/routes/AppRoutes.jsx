@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 
+import Category from "../pages/Category";
 import Home from "../pages/Home";
 import ProductDetails from "../pages/ProductDetails";
 import Cart from "../pages/Cart";
@@ -23,6 +24,7 @@ const AppRoutes = () => {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/category/:categoryName" element={<Category />} />
                     {/* <Route path="*" element={<NotFound />} /> */}
                 </Routes>
             </main>

@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { Link } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
 import Loader from "../components/common/Loader";
 import HeroCarousel from "../components/HeroCarousel";
@@ -36,8 +37,9 @@ const Home = () => {
                             img: "https://via.placeholder.com/600x400?text=Accessories",
                         },
                     ].map((category) => (
-                        <div
+                        <Link
                             key={category.name}
+                            to={`/category/${category.name}`}
                             className="relative bg-white rounded-lg shadow-md overflow-hidden group cursor-pointer hover:shadow-xl transition"
                         >
                             <img
@@ -56,7 +58,7 @@ const Home = () => {
                                     <FaArrowRight className="ml-2" />
                                 </span>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </section>
