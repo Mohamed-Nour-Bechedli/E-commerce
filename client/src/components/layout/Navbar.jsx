@@ -1,5 +1,12 @@
 import { useState, useContext } from "react";
-import { FaUser, FaShoppingCart, FaSearch, FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
+import {
+    FaUser,
+    FaShoppingCart,
+    FaSearch,
+    FaBars,
+    FaTimes,
+    FaChevronDown,
+} from "react-icons/fa";
 import Logo from "../../assets/logo.png";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
@@ -57,12 +64,15 @@ const Navbar = () => {
                                 onMouseEnter={() => setActiveDropdown(idx)}
                                 onMouseLeave={() => setActiveDropdown(null)}
                             >
-                                <span className="flex items-center select-none">
+                                <Link
+                                    to={`/category/${encodeURIComponent(cat.name)}`}
+                                    className="flex items-center select-none"
+                                >
                                     {cat.name}
                                     <FaChevronDown className="ml-1 text-gray-500 text-sm" />
-                                </span>
+                                </Link>
 
-                                {/* Dropdown with animation and persistent hover */}
+                                {/* Dropdown */}
                                 <div
                                     className={`absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 shadow-lg rounded-md py-2 transition-all duration-200 ease-in-out transform ${activeDropdown === idx
                                             ? "opacity-100 translate-y-0 visible"
@@ -72,7 +82,7 @@ const Navbar = () => {
                                     {cat.products.map((product, i) => (
                                         <Link
                                             key={i}
-                                            to="#"
+                                            to={`/category/${encodeURIComponent(cat.name)}`}
                                             className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                                         >
                                             {product}
@@ -180,8 +190,9 @@ const Navbar = () => {
                                         {cat.products.map((product, i) => (
                                             <li key={i}>
                                                 <Link
-                                                    to="#"
+                                                    to={`/category/${encodeURIComponent(cat.name)}`}
                                                     className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
+                                                    onClick={() => setIsOpen(false)}
                                                 >
                                                     {product}
                                                 </Link>
