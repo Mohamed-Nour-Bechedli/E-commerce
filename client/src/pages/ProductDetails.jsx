@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { FaShoppingCart, FaArrowLeft } from "react-icons/fa";
-import { Link, useParams, useNavigate } from "react-router-dom"; // Added useNavigate
+import { Link, useParams, useNavigate } from "react-router-dom"; 
 import { ProductContext } from "../context/ProductContext";
 import { CartContext } from "../context/CartContext";
 import Modal from "../components/common/Modal";
@@ -10,8 +10,8 @@ const ProductDetails = () => {
     const { products } = useContext(ProductContext);
     const { addToCart } = useContext(CartContext);
     const [modalOpen, setModalOpen] = useState(false);
-    const [buttonClicked, setButtonClicked] = useState(false); // For animation
-    const navigate = useNavigate(); // Added for redirect to cart page
+    const [buttonClicked, setButtonClicked] = useState(false); 
+    const navigate = useNavigate(); 
 
     const product = products.find((p) => p.id.toString() === id) || {
         name: "Loading...",
@@ -24,14 +24,14 @@ const ProductDetails = () => {
 
     // Handle add to cart
     const handleAddToCart = () => {
-        addToCart(product); // Add product to cart
-        setModalOpen(true); // Open modal
-        setButtonClicked(true); // Start button animation
+        addToCart(product); 
+        setModalOpen(true); 
+        setButtonClicked(true); 
 
         // Close modal and redirect to cart after 1 second
         setTimeout(() => {
             setModalOpen(false);
-            navigate("/cart"); // Redirect
+            navigate("/cart"); 
         }, 1000);
     };
 
