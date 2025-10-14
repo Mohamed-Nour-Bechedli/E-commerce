@@ -1,21 +1,35 @@
 const { check, validationResult } = require('express-validator');
 
 const registerValidation = [
-    check('firstName')
-        .isAlpha().withMessage('First name must contain only letters')
-        .isLength({ min: 2, max: 30 }).withMessage('First name must be between 2 and 30 characters'),
-    check('lastName')
-        .isAlpha().withMessage('Last name must contain only letters')
-        .isLength({ min: 2, max: 30 }).withMessage('Last name must be between 2 and 30 characters'),
+    check('name')
+        .trim()
+        .notEmpty().withMessage('Name is required')
+        .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters')
+        .matches(/^[a-zA-ZÀ-ÿ\s'-]+$/).withMessage('Name must contain only letters, spaces, hyphens, or accents'),
+
     check('email')
-        .isEmail().withMessage('Invalid email address'),
+        .trim()
+        .normalizeEmail()
+        .notEmpty().withMessage("Email is required")
+        .isEmail().withMessage("Invalid email format"),
+
     check('password')
+        .notEmpty().withMessage("Password is required")
         .isStrongPassword().withMessage(
-            'Password must be at least 8 chars long, include 1 uppercase, 1 lowercase, 1 number, and 1 symbol'
+            "Password must be at least 8 characters long and include 1 lowercase letter, 1 uppercase letter, 1 number, and 1 symbol"
         )
 ];
 
-// Middleware to check results
+const loginValidation = [
+    check('email')
+        .trim()
+        .normalizeEmail()
+        .notEmpty().withMessage("Email is required")
+        .isEmail().withMessage("Invalid email format"),
+    check('password')
+        .notEmpty().withMessage("Password is required")
+];
+
 const validate = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -24,4 +38,4 @@ const validate = (req, res, next) => {
     next();
 };
 
-module.exports = { registerValidation, validate };
+module.exports = { registerValidation, loginValidation, validate };
