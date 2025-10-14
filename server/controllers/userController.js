@@ -161,7 +161,6 @@ const updateProfile = async (req, res) => {
         const update = await User.findByIdAndUpdate(
             req.user._id, 
             { $set : updateData }, 
-            { $set : updateData }, 
             { new : true, runValidators : true })
             .select('-password');
         
