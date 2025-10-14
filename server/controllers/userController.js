@@ -2,6 +2,7 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const path = require('path');
 
 
 // Nodemailer transpoter setup
@@ -23,11 +24,15 @@ const register = async (req, res) => {
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+
+        const imagePath = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
+
         const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         const newUser = await new User({
             name,
             email,
+            image: imagePath,
             password: hashedPassword,
             verified: false
         }).save();
@@ -89,26 +94,26 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });
-        if(!user){
-            return res.status(400).json({ message : "Invalid credentials" });
+        if (!user) {
+            return res.status(400).json({ message: "Invalid credentials" });
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
-        if(!validPassword){
-            return res.status(400).json({ message : "Invalid credentials" });
+        if (!validPassword) {
+            return res.status(400).json({ message: "Invalid credentials" });
         }
 
         const token = jwt.sign({
             _id: user._id,
-            name : user.name,
-            email : user.email,
-            role : user.role,
-            image : user.image
-        }, process.env.JWT_SECRET, { expiresIn : '1h' });
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            image: user.image
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token, message : "Login sucessful"})
+        res.status(200).json({ token, message: "Login sucessful" })
     } catch (error) {
-        res.status(500).json({ message : "Server error", error : error.message });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
@@ -119,7 +124,7 @@ const getAllUsers = async (req, res) => {
         const users = await User.find().select('-password');
         res.status(200).json(users);
     } catch (error) {
-        res.status(500).json({ message : "Server Error", error : error.message });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
@@ -127,25 +132,28 @@ const getAllUsers = async (req, res) => {
 const getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
-        if(!user){
-            return res.status(404).json({ message : "User not found" });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
         }
         res.status(200).json(user);
     } catch (error) {
-        res.status(500).json({ message : "Server Error", error : error.message });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
 // Update profile
 const updateProfile = async (req, res) => {
-    const { name, email, image, password } = req.body;
-    const updateData = {};
     try {
+        const { name, email, password } = req.body;
+        const updateData = {};
+        const image = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
+
+        
         if (name) updateData.name = name;
         if (email) {
-            const existingemail = await User.findOne({ email, _id : { $ne : req.user._id }});
-            if(existingemail){
-                return res.status(400).json({ message : "Email already in use" });
+            const existingemail = await User.findOne({ email, _id: { $ne: req.user._id } });
+            if (existingemail) {
+                return res.status(400).json({ message: "Email already in use" });
             }
             updateData.email = email;
         }
@@ -159,15 +167,15 @@ const updateProfile = async (req, res) => {
         if (image) updateData.image = image;
 
         const update = await User.findByIdAndUpdate(
-            req.user._id, 
-            { $set : updateData }, 
-            { new : true, runValidators : true })
+            req.user._id,
+            { $set: updateData },
+            { new: true, runValidators: true })
             .select('-password');
-        
-        res.status(200).json({ user : update, message : "User updated successfully" });
+
+        res.status(200).json({ user: update, message: "User updated successfully" });
 
     } catch (error) {
-        res.status(500).json({ message : "Server Error", error : error.message });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
