@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "../components/common/ProtectedRoute";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 
@@ -20,10 +21,19 @@ const AppRoutes = () => {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/product/:id" element={<ProductDetails />} />
-                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/cart" element={
+                        <ProtectedRoute>
+                            <Cart />
+                        </ProtectedRoute>
+                        } 
+                        />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/checkout" element={
+                        <ProtectedRoute>
+                            <Checkout />
+                        </ProtectedRoute>
+                        } />
                     <Route path="/category/:categoryName" element={<Category />} />
                     {/* <Route path="*" element={<NotFound />} /> */}
                 </Routes>
