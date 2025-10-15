@@ -66,29 +66,60 @@ const verifyEmail = async (req, res) => {
         // Decode token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Find user by email only
+        // Find user by email
         const user = await User.findOne({ email: decoded.email });
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
+        // If already verified
         if (user.verified) {
-            return res.status(400).json({ message: "Email is already verified" });
+            // Generate new auth token for login
+            const authToken = user.generateAuthToken();
+            return res.status(200).json({
+                success: true,
+                message: "Email already verified. Logged in automatically.",
+                token: authToken,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    image: user.image,
+                    verified: user.verified
+                }
+            });
         }
 
         // Mark as verified
         user.verified = true;
-        user.verificationToken = null;
         await user.save();
 
-        res.status(200).json({ message: "Email verified successfully" });
+        // Generate JWT for login
+        const authToken = user.generateAuthToken();
+
+        res.status(200).json({
+            success: true,
+            message: "Email verified successfully",
+            token: authToken,
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                image: user.image,
+                verified: user.verified
+            }
+        });
     } catch (error) {
+        console.error("Verification error:", error);
         if (error.name === "TokenExpiredError") {
-            return res.status(400).json({ message: "Verification link expired" });
+            return res.status(400).json({ success: false, message: "Verification link expired" });
         }
-        res.status(400).json({ message: "Invalid verification token" });
+        res.status(400).json({ success: false, message: "Invalid verification token" });
     }
 };
+
 
 // Login user
 const login = async (req, res) => {
@@ -149,7 +180,7 @@ const updateProfile = async (req, res) => {
         const updateData = {};
         const image = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
 
-        
+
         if (name) updateData.name = name;
         if (email) {
             const existingemail = await User.findOne({ email, _id: { $ne: req.user._id } });
