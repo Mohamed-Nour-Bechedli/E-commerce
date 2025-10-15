@@ -1,11 +1,22 @@
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
-import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 
 const Cart = () => {
     const { cartItems, removeFromCart, total, clearCart, updateQuantity } =
         useContext(CartContext);
+    const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleProtectedAction = (action) => {
+        if (!user) {
+            navigate("/login");
+            return;
+        }
+        action();
+    };
 
     if (cartItems.length === 0)
         return (
@@ -41,7 +52,9 @@ const Cart = () => {
                             <div className="flex items-center mt-2 space-x-2">
                                 <button
                                     onClick={() =>
-                                        updateQuantity(item.id, item.quantity - 1)
+                                        handleProtectedAction(() =>
+                                            updateQuantity(item.id, item.quantity - 1)
+                                        )
                                     }
                                     className="bg-gray-200 px-2 rounded"
                                 >
@@ -50,7 +63,9 @@ const Cart = () => {
                                 <span>{item.quantity}</span>
                                 <button
                                     onClick={() =>
-                                        updateQuantity(item.id, item.quantity + 1)
+                                        handleProtectedAction(() =>
+                                            updateQuantity(item.id, item.quantity + 1)
+                                        )
                                     }
                                     className="bg-gray-200 px-2 rounded"
                                 >
@@ -59,7 +74,9 @@ const Cart = () => {
                             </div>
                         </div>
                         <button
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() =>
+                                handleProtectedAction(() => removeFromCart(item.id))
+                            }
                             className="text-red-600 hover:text-red-800"
                         >
                             <FaTrash />
@@ -71,17 +88,17 @@ const Cart = () => {
                 <p className="text-xl font-bold">Total: ${total}</p>
                 <div className="space-x-4">
                     <button
-                        onClick={clearCart}
+                        onClick={() => handleProtectedAction(clearCart)}
                         className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded-full"
                     >
                         Clear Cart
                     </button>
-                    <Link
-                        to="/checkout"
+                    <button
+                        onClick={() => handleProtectedAction(() => navigate("/checkout"))}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full"
                     >
                         Checkout
-                    </Link>
+                    </button>
                 </div>
             </div>
         </div>
