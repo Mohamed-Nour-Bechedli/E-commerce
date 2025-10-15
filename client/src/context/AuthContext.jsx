@@ -1,72 +1,64 @@
 import { createContext, useState, useEffect } from "react";
-import axiosInstance from "../api/axiosConfig"; e
+import axiosInstance from "../api/axiosConfig";
 
 export const AuthContext = createContext();
 
-const AuthProvider = ({ children }) => {
+export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true); 
+    const [loading, setLoading] = useState(true);
 
-    // Persistent login check
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            axiosInstance
-                .get("/auth/me") 
-                .then((res) => setUser(res.data))
-                .catch(() => {
-                    localStorage.removeItem("token");
-                    setUser(null);
-                })
-                .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) return setLoading(false);
+
+                // fetch user profile from backend
+                const res = await axiosInstance.get("/users/profile");
+                setUser(res.data);
+            } catch (err) {
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUser();
     }, []);
 
-    // LOGIN
-    const loginUser = async (formData) => {
+    // login method 
+    const loginUser = async ({ email, password }) => {
         try {
-            setLoading(true);
-            const { data } = await axiosInstance.post("/auth/login", formData);
-            localStorage.setItem("token", data.token);
-            setUser(data.user);
+            const res = await axiosInstance.post("/users/login", { email, password });
+            localStorage.setItem("token", res.data.token);
+
+            // fetch user profile after login
+            const profileRes = await axiosInstance.get("/users/profile");
+            setUser(profileRes.data);
+
             return { success: true };
-        } catch (err) {
-            console.error(err);
-            return { success: false, message: err.response?.data?.message || "Login failed" };
-        } finally {
-            setLoading(false);
+        } catch (error) {
+            return { success: false, message: error.response?.data?.message || "Login failed" };
         }
     };
 
-    // REGISTER
-    const registerUser = async (formData) => {
+    // register method 
+    const registerUser = async ({ name, email, password }) => {
         try {
-            setLoading(true);
-            const { data } = await axiosInstance.post("/auth/register", formData);
-            localStorage.setItem("token", data.token);
-            setUser(data.user);
-            return { success: true };
-        } catch (err) {
-            console.error(err);
-            return { success: false, message: err.response?.data?.message || "Registration failed" };
-        } finally {
-            setLoading(false);
+            const res = await axiosInstance.post("/users/register", { name, email, password });
+            return { success: true, message: res.data.message };
+        } catch (error) {
+            return { success: false, message: error.response?.data?.message || "Registration failed" };
         }
     };
 
-    // LOGOUT
-    const logoutUser = () => {
+    const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, loginUser, registerUser, logoutUser }}>
+        <AuthContext.Provider value={{ user, loading, loginUser, registerUser, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
-
-export default AuthProvider;

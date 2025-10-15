@@ -3,31 +3,27 @@ import axiosInstance from "../api/axiosConfig";
 
 export const ProductContext = createContext();
 
-const ProductProvider = ({ children }) => {
+export const ProductContextProvider = ({ children }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchProducts = async () => {
-        try {
-            setLoading(true);
-            const res = await axiosInstance.get("/products"); 
-            setProducts(res.data.products);
-        } catch (error) {
-            console.error("Failed to fetch products:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await axiosInstance.get("/products"); 
+                setProducts(res.data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
         fetchProducts();
     }, []);
 
     return (
-        <ProductContext.Provider value={{ products, loading, fetchProducts }}>
+        <ProductContext.Provider value={{ products, loading }}>
             {children}
         </ProductContext.Provider>
     );
 };
-
-export default ProductProvider;

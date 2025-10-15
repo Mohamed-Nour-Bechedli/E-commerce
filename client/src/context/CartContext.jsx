@@ -1,8 +1,9 @@
 import { createContext, useState } from "react";
+import axiosInstance from "../api/axiosConfig"; 
 
 export const CartContext = createContext();
 
-const CartContextProvider = ({ children }) => {
+export const CartContextProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
 
     // Add product to cart
@@ -17,6 +18,7 @@ const CartContextProvider = ({ children }) => {
                 return [...prev, { ...product, quantity: 1 }];
             }
         });
+
     };
 
     // Remove product
@@ -35,17 +37,19 @@ const CartContextProvider = ({ children }) => {
                 item.id === id ? { ...item, quantity } : item
             )
         );
+
     };
 
     // Total price
     const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, updateQuantity, total }}>
+        <CartContext.Provider
+            value={{ cartItems, addToCart, removeFromCart, clearCart, updateQuantity, total }}
+        >
             {children}
         </CartContext.Provider>
     );
 };
 
-export default CartContextProvider;
 
