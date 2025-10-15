@@ -1,8 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { AuthContext } from "../context/AuthContext"; 
 
 const Login = () => {
+    const { loginUser } = useContext(AuthContext);
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -12,21 +16,15 @@ const Login = () => {
     const [touched, setTouched] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [apiError, setApiError] = useState(""); 
 
     const validate = (values) => {
         const newErrors = {};
+        if (!values.email) newErrors.email = "Email is required.";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) newErrors.email = "Invalid email format.";
 
-        if (!values.email) {
-            newErrors.email = "Email is required.";
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-            newErrors.email = "Invalid email format.";
-        }
-
-        if (!values.password) {
-            newErrors.password = "Password is required.";
-        } else if (values.password.length < 6) {
-            newErrors.password = "Password must be at least 6 characters.";
-        }
+        if (!values.password) newErrors.password = "Password is required.";
+        else if (values.password.length < 6) newErrors.password = "Password must be at least 6 characters.";
 
         return newErrors;
     };
@@ -46,7 +44,7 @@ const Login = () => {
         setErrors(validate(formData));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate(formData);
         setErrors(validationErrors);
@@ -54,8 +52,16 @@ const Login = () => {
 
         if (Object.keys(validationErrors).length === 0) {
             setIsSubmitting(true);
-            console.log("Logging in with:", formData);
-            setTimeout(() => setIsSubmitting(false), 1500);
+            setApiError("");
+
+            const result = await loginUser(formData);
+            setIsSubmitting(false);
+
+            if (result.success) {
+                navigate("/"); // redirect to home on success
+            } else {
+                setApiError(result.message);
+            }
         }
     };
 
@@ -66,6 +72,10 @@ const Login = () => {
                 className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md"
             >
                 <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+
+                {apiError && (
+                    <p className="text-red-600 text-sm mb-4 text-center">{apiError}</p>
+                )}
 
                 {/* Email */}
                 <div className="mb-4">

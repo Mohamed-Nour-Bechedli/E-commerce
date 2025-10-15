@@ -1,8 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { AuthContext } from "../context/AuthContext"; 
 
 const Register = () => {
+    const { registerUser } = useContext(AuthContext);
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -15,35 +19,24 @@ const Register = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [apiError, setApiError] = useState("");
 
     const validate = (values) => {
         const newErrors = {};
-
         if (!values.name.trim()) newErrors.name = "Full name is required.";
-
         if (!values.email) newErrors.email = "Email is required.";
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email))
-            newErrors.email = "Invalid email format.";
-
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) newErrors.email = "Invalid email format.";
         if (!values.password) newErrors.password = "Password is required.";
-        else if (values.password.length < 6)
-            newErrors.password = "Password must be at least 6 characters.";
-
-        if (!values.confirmPassword)
-            newErrors.confirmPassword = "Please confirm your password.";
-        else if (values.confirmPassword !== values.password)
-            newErrors.confirmPassword = "Passwords do not match.";
-
+        else if (values.password.length < 6) newErrors.password = "Password must be at least 6 characters.";
+        if (!values.confirmPassword) newErrors.confirmPassword = "Please confirm your password.";
+        else if (values.confirmPassword !== values.password) newErrors.confirmPassword = "Passwords do not match.";
         return newErrors;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-
-        if (touched[name]) {
-            setErrors(validate({ ...formData, [name]: value }));
-        }
+        if (touched[name]) setErrors(validate({ ...formData, [name]: value }));
     };
 
     const handleBlur = (e) => {
@@ -52,21 +45,24 @@ const Register = () => {
         setErrors(validate(formData));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validate(formData);
         setErrors(validationErrors);
-        setTouched({
-            name: true,
-            email: true,
-            password: true,
-            confirmPassword: true,
-        });
+        setTouched({ name: true, email: true, password: true, confirmPassword: true });
 
         if (Object.keys(validationErrors).length === 0) {
             setIsSubmitting(true);
-            console.log("Registering with:", formData);
-            setTimeout(() => setIsSubmitting(false), 1500);
+            setApiError("");
+
+            const result = await registerUser(formData);
+            setIsSubmitting(false);
+
+            if (result.success) {
+                navigate("/"); // redirect to home after register
+            } else {
+                setApiError(result.message);
+            }
         }
     };
 
@@ -77,6 +73,10 @@ const Register = () => {
                 className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md"
             >
                 <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+
+                {apiError && (
+                    <p className="text-red-600 text-sm mb-4 text-center">{apiError}</p>
+                )}
 
                 {/* Name */}
                 <div className="mb-4">
@@ -178,9 +178,7 @@ const Register = () => {
                         </span>
                     </div>
                     {errors.confirmPassword && touched.confirmPassword && (
-                        <p className="text-red-500 text-sm mt-1">
-                            {errors.confirmPassword}
-                        </p>
+                        <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
                     )}
                 </div>
 
