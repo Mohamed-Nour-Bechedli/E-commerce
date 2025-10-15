@@ -1,57 +1,33 @@
 import { createContext, useState, useEffect } from "react";
+import axiosInstance from "../api/axiosConfig";
 
-// Create context
 export const ProductContext = createContext();
 
-const ProductContextProvider = ({ children }) => {
+const ProductProvider = ({ children }) => {
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    // Temporary mock data
-    const mockProducts = [
-        {
-            id: 1,
-            name: "Apple Watch Series 9",
-            price: 599,
-            image: "https://via.placeholder.com/400x300?text=Apple+Watch",
-            category: "Smartwatches",
-            description: "High-quality smartwatch with health tracking.",
-            stock: 12,
-        },
-        {
-            id: 2,
-            name: "Gaming Laptop",
-            price: 1299,
-            image: "https://via.placeholder.com/400x300?text=Gaming+Laptop",
-            category: "PC Gamers",
-            description: "Powerful laptop for gaming and streaming.",
-            stock: 5,
-        },
-        {
-            id: 3,
-            name: "Mechanical Keyboard",
-            price: 99,
-            image: "https://via.placeholder.com/400x300?text=Mechanical+Keyboard",
-            category: "Accessories",
-            description: "RGB mechanical keyboard with tactile keys.",
-            stock: 20,
-        },
-    ];
+    const fetchProducts = async () => {
+        try {
+            setLoading(true);
+            const res = await axiosInstance.get("/products"); 
+            setProducts(res.data.products);
+        } catch (error) {
+            console.error("Failed to fetch products:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        setLoading(true);
-        // Simulate fetching data
-        setTimeout(() => {
-            setProducts(mockProducts);
-            setLoading(false);
-        }, 1000);
+        fetchProducts();
     }, []);
 
     return (
-        <ProductContext.Provider value={{ products, setProducts, loading }}>
+        <ProductContext.Provider value={{ products, loading, fetchProducts }}>
             {children}
         </ProductContext.Provider>
     );
 };
 
-export default ProductContextProvider;
+export default ProductProvider;
