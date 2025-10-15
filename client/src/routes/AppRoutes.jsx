@@ -10,6 +10,8 @@ import Cart from "../pages/Cart";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Checkout from "../pages/Checkout";
+import VerifyNotice from "../pages/VerifyNotice";
+import VerifyEmail from "../pages/VerifyEmail";
 // import NotFound from "../pages/NotFound";
 
 const AppRoutes = () => {
@@ -19,23 +21,37 @@ const AppRoutes = () => {
 
             <main className="flex-1">
                 <Routes>
+                    {/* Public routes */}
                     <Route path="/" element={<Home />} />
-                    <Route path="/product/:id" element={<ProductDetails />} />
-                    <Route path="/cart" element={
-                        <ProtectedRoute>
-                            <Cart />
-                        </ProtectedRoute>
-                        } 
-                        />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/checkout" element={
-                        <ProtectedRoute>
-                            <Checkout />
-                        </ProtectedRoute>
-                        } />
                     <Route path="/category/:categoryName" element={<Category />} />
-                    {/* <Route path="*" element={<NotFound />} /> */}
+                    <Route path="/product/:id" element={<ProductDetails />} />
+
+                    {/* Email verification flow */}
+                    <Route path="/verify-notice" element={<VerifyNotice />} />
+                    <Route path="/verify/:token" element={<VerifyEmail />} />
+
+                    {/* Protected routes */}
+                    <Route
+                        path="/cart"
+                        element={
+                            <ProtectedRoute>
+                                <Cart />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/checkout"
+                        element={
+                            <ProtectedRoute>
+                                <Checkout />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* NotFound (optional)
+          <Route path="*" element={<NotFound />} /> */}
                 </Routes>
             </main>
 
@@ -45,5 +61,3 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
-
-

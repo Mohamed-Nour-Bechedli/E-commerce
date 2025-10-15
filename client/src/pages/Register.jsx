@@ -1,19 +1,13 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { AuthContext } from "../context/AuthContext"; 
+import { AuthContext } from "../context/AuthContext";
 
 const Register = () => {
     const { registerUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    });
-
+    const [formData, setFormData] = useState({ name: "", email: "", password: "", confirmPassword: "" });
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,7 +53,7 @@ const Register = () => {
             setIsSubmitting(false);
 
             if (result.success) {
-                navigate("/"); // redirect to home after register
+                navigate("/login"); // redirect to login after successful registration
             } else {
                 setApiError(result.message);
             }
@@ -68,65 +62,44 @@ const Register = () => {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
-            <form
-                onSubmit={handleSubmit}
-                className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md"
-            >
+            <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
                 <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
 
-                {apiError && (
-                    <p className="text-red-600 text-sm mb-4 text-center">{apiError}</p>
-                )}
+                {apiError && <p className="text-red-600 text-sm mb-4 text-center">{apiError}</p>}
 
                 {/* Name */}
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                        Full Name
-                    </label>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
                     <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none ${errors.name && touched.name
-                                ? "border-red-500"
-                                : "border-gray-300 focus:border-blue-500"
-                            }`}
+                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none ${errors.name && touched.name ? "border-red-500" : "border-gray-300 focus:border-blue-500"}`}
                         placeholder="Enter your full name"
                     />
-                    {errors.name && touched.name && (
-                        <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                    )}
+                    {errors.name && touched.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
 
                 {/* Email */}
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                        Email
-                    </label>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Email</label>
                     <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none ${errors.email && touched.email
-                                ? "border-red-500"
-                                : "border-gray-300 focus:border-blue-500"
-                            }`}
+                        className={`w-full px-4 py-2 border rounded-lg focus:outline-none ${errors.email && touched.email ? "border-red-500" : "border-gray-300 focus:border-blue-500"}`}
                         placeholder="Enter your email"
                     />
-                    {errors.email && touched.email && (
-                        <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                    )}
+                    {errors.email && touched.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
 
                 {/* Password */}
                 <div className="mb-4 relative">
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                        Password
-                    </label>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Password</label>
                     <div className="relative">
                         <input
                             type={showPassword ? "text" : "password"}
@@ -134,29 +107,19 @@ const Register = () => {
                             value={formData.password}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={`w-full px-4 py-2 border rounded-lg focus:outline-none pr-10 ${errors.password && touched.password
-                                    ? "border-red-500"
-                                    : "border-gray-300 focus:border-blue-500"
-                                }`}
+                            className={`w-full px-4 py-2 border rounded-lg focus:outline-none pr-10 ${errors.password && touched.password ? "border-red-500" : "border-gray-300 focus:border-blue-500"}`}
                             placeholder="Enter your password"
                         />
-                        <span
-                            className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowPassword((prev) => !prev)}
-                        >
+                        <span className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-gray-700" onClick={() => setShowPassword((prev) => !prev)}>
                             {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
                     </div>
-                    {errors.password && touched.password && (
-                        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                    )}
+                    {errors.password && touched.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                 </div>
 
                 {/* Confirm Password */}
                 <div className="mb-6 relative">
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                        Confirm Password
-                    </label>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Confirm Password</label>
                     <div className="relative">
                         <input
                             type={showConfirmPassword ? "text" : "password"}
@@ -164,40 +127,22 @@ const Register = () => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={`w-full px-4 py-2 border rounded-lg focus:outline-none pr-10 ${errors.confirmPassword && touched.confirmPassword
-                                    ? "border-red-500"
-                                    : "border-gray-300 focus:border-blue-500"
-                                }`}
+                            className={`w-full px-4 py-2 border rounded-lg focus:outline-none pr-10 ${errors.confirmPassword && touched.confirmPassword ? "border-red-500" : "border-gray-300 focus:border-blue-500"}`}
                             placeholder="Confirm your password"
                         />
-                        <span
-                            className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        >
+                        <span className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-gray-700" onClick={() => setShowConfirmPassword((prev) => !prev)}>
                             {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                         </span>
                     </div>
-                    {errors.confirmPassword && touched.confirmPassword && (
-                        <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-                    )}
+                    {errors.confirmPassword && touched.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full py-2 text-white rounded-lg font-medium transition ${isSubmitting
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                >
+                <button type="submit" disabled={isSubmitting} className={`w-full py-2 text-white rounded-lg font-medium transition ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}>
                     {isSubmitting ? "Registering..." : "Register"}
                 </button>
 
                 <p className="text-sm text-gray-600 mt-4 text-center">
-                    Already have an account?{" "}
-                    <Link to="/login" className="text-blue-600 hover:underline">
-                        Login
-                    </Link>
+                    Already have an account? <Link to="/login" className="text-blue-600 hover:underline">Login</Link>
                 </p>
             </form>
         </div>

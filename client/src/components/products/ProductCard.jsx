@@ -5,7 +5,7 @@ import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 import Modal from "../common/Modal";
 
-const ProductCard = ({ id, name, image, price, stock }) => {
+const ProductCard = ({ id, name, image, price, stock = 0 }) => { 
     const { addToCart } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -23,7 +23,6 @@ const ProductCard = ({ id, name, image, price, stock }) => {
 
     return (
         <div className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition cursor-pointer">
-            {/* Link to Product Details */}
             <Link to={`/product/${id}`} className="block">
                 <img src={image} alt={name} className="w-full h-48 object-contain p-4" />
                 <div className="p-4 flex flex-col justify-between h-40">
@@ -37,7 +36,6 @@ const ProductCard = ({ id, name, image, price, stock }) => {
                 </div>
             </Link>
 
-            {/* Add to Cart Button */}
             <div className="p-4">
                 <button
                     onClick={handleAddToCart}
@@ -47,7 +45,6 @@ const ProductCard = ({ id, name, image, price, stock }) => {
                 </button>
             </div>
 
-            {/* Modal */}
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Product Added!">
                 <p>The product has been added to your cart successfully.</p>
             </Modal>

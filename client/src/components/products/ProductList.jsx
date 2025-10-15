@@ -6,7 +6,7 @@ import Loader from "../common/Loader";
 const ProductList = () => {
     const { products, loading } = useContext(ProductContext);
 
-    if (loading) return <Loader />; // show loader while fetching products
+    if (loading) return <Loader />;
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -17,9 +17,7 @@ const ProductList = () => {
                 {products.map((product) => (
                     <ProductCard
                         key={product.id}
-                        name={product.name}
-                        price={product.price}
-                        image={product.image}
+                        {...product} 
                     />
                 ))}
             </div>

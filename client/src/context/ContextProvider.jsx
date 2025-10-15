@@ -1,6 +1,6 @@
-import AuthContextProvider from "./AuthContext";
-import CartContextProvider from "./CartContext";
-import ProductContextProvider from "./ProductContext";
+import { AuthContextProvider } from "./AuthContext";
+import { CartContextProvider } from "./CartContext";
+import { ProductContextProvider } from "./ProductContext";
 
 const ContextProvider = ({ children }) => {
     return (
@@ -13,4 +13,6 @@ const ContextProvider = ({ children }) => {
 };
 
 export default ContextProvider;
+
+
 
