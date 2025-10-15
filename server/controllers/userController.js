@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 
 // Register a new user
 const register = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -32,6 +32,7 @@ const register = async (req, res) => {
         const newUser = await new User({
             name,
             email,
+            role,
             image: imagePath,
             password: hashedPassword,
             verified: false
