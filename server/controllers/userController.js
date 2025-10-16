@@ -176,15 +176,15 @@ const getProfile = async (req, res) => {
 // Update profile
 const updateProfile = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, phone } = req.body;
         const updateData = {};
         const image = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
 
-
         if (name) updateData.name = name;
+
         if (email) {
-            const existingemail = await User.findOne({ email, _id: { $ne: req.user._id } });
-            if (existingemail) {
+            const existingEmail = await User.findOne({ email, _id: { $ne: req.user._id } });
+            if (existingEmail) {
                 return res.status(400).json({ message: "Email already in use" });
             }
             updateData.email = email;
@@ -196,13 +196,15 @@ const updateProfile = async (req, res) => {
             updateData.password = hashedPassword;
         }
 
+        if (phone) updateData.phone = phone; 
+
         if (image) updateData.image = image;
 
         const update = await User.findByIdAndUpdate(
             req.user._id,
             { $set: updateData },
-            { new: true, runValidators: true })
-            .select('-password');
+            { new: true, runValidators: true }
+        ).select('-password');
 
         res.status(200).json({ user: update, message: "User updated successfully" });
 
@@ -210,6 +212,7 @@ const updateProfile = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
 
 
 

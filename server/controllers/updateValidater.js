@@ -21,8 +21,14 @@ const updateValidation = [
 
     check('image')
         .optional()
-        .isString().withMessage("Image must be a valid string URL or path")
+        .isString().withMessage("Image must be a valid string URL or path"),
+
+    check('phone')
+        .optional()
+        .trim()
+        .matches(/^[0-9]{8,15}$/).withMessage("Phone number must be numeric and 8-15 digits")
 ];
+
 
 // Middleware to check validation results
 const validateUpdate = (req, res, next) => {
