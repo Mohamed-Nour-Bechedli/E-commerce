@@ -15,7 +15,7 @@ const ProductDetails = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    const product = products.find((p) => p.id.toString() === id) || {
+    const product = (products || []).find((p) => p._id === id) || {
         name: "Loading...",
         price: 0,
         image: "",
@@ -29,15 +29,14 @@ const ProductDetails = () => {
             navigate("/login");
             return;
         }
-
         addToCart(product);
         setModalOpen(true);
         navigate("/cart");
     };
 
     // Related products logic
-    const relatedProducts = products.filter(
-        (p) => p.category === product.category && p.id !== product.id
+    const relatedProducts = (products || []).filter(
+        (p) => p.category === product.category && p._id !== product._id
     );
 
     return (
@@ -76,8 +75,8 @@ const ProductDetails = () => {
                             </p>
                             <p
                                 className={`mb-6 font-medium ${product.stock > 0
-                                        ? "text-green-600"
-                                        : "text-red-500"
+                                    ? "text-green-600"
+                                    : "text-red-500"
                                     }`}
                             >
                                 {product.stock > 0
@@ -111,7 +110,7 @@ const ProductDetails = () => {
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {relatedProducts.map((p) => (
-                                <ProductCard key={p.id} {...p} />
+                                <ProductCard key={p._id} {...p} />
                             ))}
                         </div>
                     </div>

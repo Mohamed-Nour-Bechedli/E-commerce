@@ -5,7 +5,7 @@ import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 import Modal from "../common/Modal";
 
-const ProductCard = ({ id, name, image, price, stock = 0 }) => { 
+const ProductCard = ({ _id, name, image, price, stock = 0 }) => {
     const { addToCart } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -16,14 +16,13 @@ const ProductCard = ({ id, name, image, price, stock = 0 }) => {
             navigate("/login");
             return;
         }
-
-        addToCart({ id, name, image, price, stock, quantity: 1 });
+        addToCart({ _id, name, image, price, stock, quantity: 1 });
         setModalOpen(true);
     };
 
     return (
         <div className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition cursor-pointer">
-            <Link to={`/product/${id}`} className="block">
+            <Link to={`/product/${_id}`} className="block">
                 <img src={image} alt={name} className="w-full h-48 object-contain p-4" />
                 <div className="p-4 flex flex-col justify-between h-40">
                     <div>
