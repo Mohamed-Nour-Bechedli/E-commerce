@@ -12,6 +12,7 @@ import Register from "../pages/Register";
 import Checkout from "../pages/Checkout";
 import VerifyNotice from "../pages/VerifyNotice";
 import VerifyEmail from "../pages/VerifyEmail";
+import Profile from "../pages/Profile";
 // import NotFound from "../pages/NotFound";
 
 const AppRoutes = () => {
@@ -33,6 +34,15 @@ const AppRoutes = () => {
                     <Route path="/verify/:token" element={<VerifyEmail />} />
 
                     {/* Protected routes */}
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
+
                     <Route
                         path="/cart"
                         element={
