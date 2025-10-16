@@ -20,10 +20,20 @@ const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen, showSearch, setShowSear
                 <FaSearch size={20} />
             </button>
 
-            <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
-                <FaUser size={20} />
+            {/* User icon / avatar */}
+            <Link to={user ? "/profile" : "/login"} className="flex items-center">
+                {user ? (
+                    <img
+                        src={user.image} // uses uploaded image or default from schema
+                        alt={user.name || "User Avatar"}
+                        className="w-6 h-6 rounded-full object-cover"
+                    />
+                ) : (
+                    <FaUser size={20} className="text-gray-700 hover:text-blue-600" />
+                )}
             </Link>
 
+            {/* Cart icon */}
             <button
                 onClick={() => setIsCartOpen(true)}
                 className="text-gray-700 hover:text-blue-600 relative"
@@ -36,6 +46,7 @@ const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen, showSearch, setShowSear
                 )}
             </button>
 
+            {/* Logout button if user exists */}
             {user && (
                 <button
                     onClick={logout}
@@ -45,6 +56,7 @@ const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen, showSearch, setShowSear
                 </button>
             )}
 
+            {/* Mobile menu toggle */}
             <button
                 className="md:hidden text-gray-700 hover:text-blue-600"
                 onClick={() => setIsOpen(!isOpen)}
