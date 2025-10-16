@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useContext } from "react";
-import { AuthContext } from "../../context/AuthContext"; 
+import { useState, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 import NavbarLogo from "./NavbarLogo";
 import NavbarCategories from "./NavbarCategories";
 import NavbarSearch from "./NavbarSearch";
@@ -14,7 +14,7 @@ const Navbar = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
 
-    const { user } = useContext(AuthContext); 
+    const { user } = useContext(AuthContext);
 
     const categories = [
         { name: "PC Gamers", products: ["Gaming Laptop", "Custom PC Build", "Monitors"] },
@@ -30,15 +30,24 @@ const Navbar = () => {
                     {/* Left: Logo */}
                     <NavbarLogo className="text-sky-500 hover:text-sky-600 transition-colors" />
 
-                    {/* Center: Categories */}
-                    <NavbarCategories
-                        categories={categories}
-                        activeDropdown={activeDropdown}
-                        setActiveDropdown={setActiveDropdown}
-                        className="hidden md:flex space-x-6 text-gray-800 font-medium"
-                        dropdownClassName="bg-white shadow-lg rounded-lg p-4 text-gray-800"
-                        hoverTextColor="text-sky-500"
-                    />
+                    {/* Center: Products link + Categories */}
+                    <div className="hidden md:flex items-center space-x-6">
+                        <Link
+                            to="/products"
+                            className="text-gray-800 font-medium hover:text-sky-500 transition-colors"
+                        >
+                            Products
+                        </Link>
+
+                        <NavbarCategories
+                            categories={categories}
+                            activeDropdown={activeDropdown}
+                            setActiveDropdown={setActiveDropdown}
+                            className="flex space-x-6 text-gray-800 font-medium"
+                            dropdownClassName="bg-white shadow-lg rounded-lg p-4 text-gray-800"
+                            hoverTextColor="text-sky-500"
+                        />
+                    </div>
 
                     {/* Right: Search + Icons */}
                     <div className="flex items-center space-x-4">
@@ -49,7 +58,6 @@ const Navbar = () => {
                             inputClassName="pl-10 pr-3 py-1 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
                         />
 
-                        {/* Updated NavbarIcons to include user avatar */}
                         <NavbarIcons
                             setIsCartOpen={setIsCartOpen}
                             isOpen={isOpen}
@@ -58,7 +66,7 @@ const Navbar = () => {
                             setShowSearch={setShowSearch}
                             iconClassName="text-gray-800 hover:text-sky-500 transition-colors"
                             cartBadgeClassName="bg-sky-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full absolute -top-2 -right-2"
-                            userAvatar={user?.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} // Added: avatar logic
+                            userAvatar={user?.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
                         />
                     </div>
                 </div>
