@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext"; 
 import NavbarLogo from "./NavbarLogo";
 import NavbarCategories from "./NavbarCategories";
 import NavbarSearch from "./NavbarSearch";
@@ -11,6 +13,8 @@ const Navbar = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
+
+    const { user } = useContext(AuthContext); 
 
     const categories = [
         { name: "PC Gamers", products: ["Gaming Laptop", "Custom PC Build", "Monitors"] },
@@ -44,6 +48,8 @@ const Navbar = () => {
                             setShowSearch={setShowSearch}
                             inputClassName="pl-10 pr-3 py-1 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
                         />
+
+                        {/* Updated NavbarIcons to include user avatar */}
                         <NavbarIcons
                             setIsCartOpen={setIsCartOpen}
                             isOpen={isOpen}
@@ -52,6 +58,7 @@ const Navbar = () => {
                             setShowSearch={setShowSearch}
                             iconClassName="text-gray-800 hover:text-sky-500 transition-colors"
                             cartBadgeClassName="bg-sky-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full absolute -top-2 -right-2"
+                            userAvatar={user?.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} // Added: avatar logic
                         />
                     </div>
                 </div>
