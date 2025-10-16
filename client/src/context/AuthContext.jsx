@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import axiosInstance from "../api/axiosConfig";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode"; 
 
 export const AuthContext = createContext();
 
@@ -19,7 +19,7 @@ export const AuthContextProvider = ({ children }) => {
                     name: decoded.name,
                     email: decoded.email,
                     role: decoded.role,
-                    image: decoded.image,
+                    image: decoded.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
                     verified: true,
                 });
             } catch (error) {
@@ -43,7 +43,7 @@ export const AuthContextProvider = ({ children }) => {
                 name: decoded.name,
                 email: decoded.email,
                 role: decoded.role,
-                image: decoded.image,
+                image: decoded.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
                 verified: true,
             });
 
@@ -99,6 +99,11 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
+    // Update user image dynamically
+    const updateUserImage = (newImage) => {
+        setUser((prevUser) => (prevUser ? { ...prevUser, image: newImage } : null));
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -108,6 +113,7 @@ export const AuthContextProvider = ({ children }) => {
                 registerUser,
                 logout,
                 verifyEmail,
+                updateUserImage, 
             }}
         >
             {!loading && children}
