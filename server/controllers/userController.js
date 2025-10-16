@@ -176,12 +176,14 @@ const getProfile = async (req, res) => {
 // Update profile
 const updateProfile = async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const { name, email, phone, password, currentPassword } = req.body;
         const updateData = {};
         const image = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
 
+        // Update name
         if (name) updateData.name = name;
 
+        // Update email
         if (email) {
             const existingEmail = await User.findOne({ email, _id: { $ne: req.user._id } });
             if (existingEmail) {
@@ -190,28 +192,41 @@ const updateProfile = async (req, res) => {
             updateData.email = email;
         }
 
+        // Update phone
+        if (phone) updateData.phone = phone;
+
+        // Update password
         if (password) {
+            if (!currentPassword) {
+                return res.status(400).json({ message: "Current password is required to change password" });
+            }
+
+            const user = await User.findById(req.user._id);
+            const validCurrent = await bcrypt.compare(currentPassword, user.password);
+            if (!validCurrent) {
+                return res.status(400).json({ message: "Current password is incorrect" });
+            }
+
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
             updateData.password = hashedPassword;
         }
 
-        if (phone) updateData.phone = phone; 
-
+        // Update image
         if (image) updateData.image = image;
 
-        const update = await User.findByIdAndUpdate(
+        const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
             { $set: updateData },
             { new: true, runValidators: true }
         ).select('-password');
 
-        res.status(200).json({ user: update, message: "User updated successfully" });
-
+        res.status(200).json({ user: updatedUser, message: "Profile updated successfully" });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
 
 
 
