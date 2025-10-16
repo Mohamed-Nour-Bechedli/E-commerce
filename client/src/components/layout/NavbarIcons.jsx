@@ -20,20 +20,20 @@ const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen, showSearch, setShowSear
                 <FaSearch size={20} />
             </button>
 
-            {/* User icon / avatar */}
-            <Link to={user ? "/profile" : "/login"} className="flex items-center">
+            {/* User avatar or icon */}
+            <Link to={user ? "/profile" : "/login"} className="text-gray-700 hover:text-blue-600">
                 {user ? (
                     <img
-                        src={user.image} // uses uploaded image or default from schema
-                        alt={user.name || "User Avatar"}
-                        className="w-6 h-6 rounded-full object-cover"
+                        src={user.image}
+                        alt="User Avatar"
+                        className="w-8 h-8 rounded-full object-cover"
                     />
                 ) : (
-                    <FaUser size={20} className="text-gray-700 hover:text-blue-600" />
+                    <FaUser size={20} />
                 )}
             </Link>
 
-            {/* Cart icon */}
+            {/* Shopping cart */}
             <button
                 onClick={() => setIsCartOpen(true)}
                 className="text-gray-700 hover:text-blue-600 relative"
@@ -46,7 +46,7 @@ const NavbarIcons = ({ setIsCartOpen, isOpen, setIsOpen, showSearch, setShowSear
                 )}
             </button>
 
-            {/* Logout button if user exists */}
+            {/* Logout button */}
             {user && (
                 <button
                     onClick={logout}
