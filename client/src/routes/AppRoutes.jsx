@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
-
+import Products from "../pages/Products";
 import Category from "../pages/Category";
 import Home from "../pages/Home";
 import ProductDetails from "../pages/ProductDetails";
@@ -49,6 +49,8 @@ const AppRoutes = () => {
                             </ProtectedRoute>
                         }
                     />
+
+                    <Route path="/products" element={<Products />} />
 
                     {/* NotFound (optional)
           <Route path="*" element={<NotFound />} /> */}
