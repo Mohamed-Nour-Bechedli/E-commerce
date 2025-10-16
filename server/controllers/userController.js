@@ -4,15 +4,14 @@ const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-
-// Nodemailer transpoter setup
+// Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     }
-})
+});
 
 // Register a new user
 const register = async (req, res) => {
@@ -62,19 +61,14 @@ const register = async (req, res) => {
 const verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
-
-        // Decode token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Find user by email
         const user = await User.findOne({ email: decoded.email });
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // If already verified
         if (user.verified) {
-            // Generate new auth token for login
             const authToken = user.generateAuthToken();
             return res.status(200).json({
                 success: true,
@@ -91,11 +85,9 @@ const verifyEmail = async (req, res) => {
             });
         }
 
-        // Mark as verified
         user.verified = true;
         await user.save();
 
-        // Generate JWT for login
         const authToken = user.generateAuthToken();
 
         res.status(200).json({
@@ -120,7 +112,6 @@ const verifyEmail = async (req, res) => {
     }
 };
 
-
 // Login user
 const login = async (req, res) => {
     const { email, password } = req.body;
@@ -140,15 +131,15 @@ const login = async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
-            image: user.image
+            image: user.image,
+            phone: user.phone
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token, message: "Login sucessful" })
+        res.status(200).json({ token, message: "Login successful" });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -160,59 +151,42 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-// Get Profile
+// Get profile
 const getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+        if (!user) return res.status(404).json({ message: "User not found" });
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
-// Update profile
+// Update profile (info + password + phone)
 const updateProfile = async (req, res) => {
     try {
         const { name, email, phone, password, currentPassword } = req.body;
         const updateData = {};
         const image = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
 
-        // Update name
         if (name) updateData.name = name;
-
-        // Update email
         if (email) {
             const existingEmail = await User.findOne({ email, _id: { $ne: req.user._id } });
-            if (existingEmail) {
-                return res.status(400).json({ message: "Email already in use" });
-            }
+            if (existingEmail) return res.status(400).json({ message: "Email already in use" });
             updateData.email = email;
         }
-
-        // Update phone
         if (phone) updateData.phone = phone;
 
-        // Update password
         if (password) {
-            if (!currentPassword) {
-                return res.status(400).json({ message: "Current password is required to change password" });
-            }
-
+            if (!currentPassword) return res.status(400).json({ message: "Current password is required to change password" });
             const user = await User.findById(req.user._id);
             const validCurrent = await bcrypt.compare(currentPassword, user.password);
-            if (!validCurrent) {
-                return res.status(400).json({ message: "Current password is incorrect" });
-            }
+            if (!validCurrent) return res.status(400).json({ message: "Current password is incorrect" });
 
             const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-            updateData.password = hashedPassword;
+            updateData.password = await bcrypt.hash(password, salt);
         }
 
-        // Update image
         if (image) updateData.image = image;
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -227,8 +201,23 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// Update profile image only
+const updateProfileImage = async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ message: "No image uploaded" });
 
+        const imagePath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
 
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { $set: { image: imagePath } },
+            { new: true, runValidators: true }
+        ).select('-password');
 
+        res.status(200).json({ image: updatedUser.image, message: "Profile image updated successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
 
-module.exports = { register, login, verifyEmail, getAllUsers, getProfile, updateProfile };
+module.exports = { register, login, verifyEmail, getAllUsers, getProfile, updateProfile, updateProfileImage };
