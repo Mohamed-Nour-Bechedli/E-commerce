@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import axiosInstance from "../api/axiosConfig";
-import { jwtDecode } from "jwt-decode"; 
+import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext();
 
@@ -8,20 +8,23 @@ export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Initialize auth state from localStorage on app load
+    // Fetch user profile from backend (always latest data)
+    const fetchUserProfile = async () => {
+        try {
+            const res = await axiosInstance.get("/users/profile");
+            setUser(res.data);
+        } catch (error) {
+            console.error("Failed to fetch user profile:", error);
+        }
+    };
+
+    // Initialize auth state from token
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
             try {
-                const decoded = jwtDecode(token);
-                setUser({
-                    _id: decoded._id,
-                    name: decoded.name,
-                    email: decoded.email,
-                    role: decoded.role,
-                    image: decoded.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-                    verified: true,
-                });
+                jwtDecode(token); 
+                fetchUserProfile(); 
             } catch (error) {
                 console.error("Token decode error:", error);
                 localStorage.removeItem("token");
@@ -36,17 +39,7 @@ export const AuthContextProvider = ({ children }) => {
             const res = await axiosInstance.post("/users/login", { email, password });
             const token = res.data.token;
             localStorage.setItem("token", token);
-
-            const decoded = jwtDecode(token);
-            setUser({
-                _id: decoded._id,
-                name: decoded.name,
-                email: decoded.email,
-                role: decoded.role,
-                image: decoded.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-                verified: true,
-            });
-
+            await fetchUserProfile(); 
             return { success: true };
         } catch (error) {
             return {
@@ -75,17 +68,13 @@ export const AuthContextProvider = ({ children }) => {
         setUser(null);
     };
 
-    // VERIFY EMAIL & AUTO-LOGIN
+    // VERIFY EMAIL
     const verifyEmail = async (token) => {
         try {
             const res = await axiosInstance.get(`/users/verify/${token}`);
             if (res.data.success && res.data.token) {
-                // Save token
                 localStorage.setItem("token", res.data.token);
-
-                // Set user state
-                setUser(res.data.user);
-
+                await fetchUserProfile();
                 return { success: true };
             } else {
                 return { success: false, message: res.data.message };
@@ -99,7 +88,7 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
-    // Update user image dynamically
+    // Update user image dynamically (frontend instant update)
     const updateUserImage = (newImage) => {
         setUser((prevUser) => (prevUser ? { ...prevUser, image: newImage } : null));
     };
@@ -113,7 +102,8 @@ export const AuthContextProvider = ({ children }) => {
                 registerUser,
                 logout,
                 verifyEmail,
-                updateUserImage, 
+                updateUserImage,
+                fetchUserProfile, 
             }}
         >
             {!loading && children}
