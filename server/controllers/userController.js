@@ -40,17 +40,12 @@ const register = async (req, res) => {
 
         const verifyURL = `${process.env.CLIENT_URL}/verify/${verificationToken}`;
 
-        // Send verification email
-        const sendVerificationEmail = async () => {
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: newUser.email,
-                subject: "verify your email",
-                html: `<h3>Click <a href="${verifyURL}">here</a> to verify your email</h3>`
-            })
-        };
-
-        sendVerificationEmail();
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: newUser.email,
+            subject: "Verify your email",
+            html: `<h3>Click <a href="${verifyURL}">here</a> to verify your email</h3>`
+        });
 
         res.status(201).json({ message: "User registered successfully! Please verify your email to login." });
     } catch (error) {
@@ -65,9 +60,7 @@ const verifyEmail = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const user = await User.findOne({ email: decoded.email });
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
         if (user.verified) {
             const authToken = user.generateAuthToken();
@@ -75,14 +68,7 @@ const verifyEmail = async (req, res) => {
                 success: true,
                 message: "Email already verified. Logged in automatically.",
                 token: authToken,
-                user: {
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    image: user.image,
-                    verified: user.verified
-                }
+                user
             });
         }
 
@@ -90,22 +76,13 @@ const verifyEmail = async (req, res) => {
         await user.save();
 
         const authToken = user.generateAuthToken();
-
         res.status(200).json({
             success: true,
             message: "Email verified successfully",
             token: authToken,
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                image: user.image,
-                verified: user.verified
-            }
+            user
         });
     } catch (error) {
-        console.error("Verification error:", error);
         if (error.name === "TokenExpiredError") {
             return res.status(400).json({ success: false, message: "Verification link expired" });
         }
@@ -118,14 +95,10 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "Invalid credentials" });
-        }
+        if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
         const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(400).json({ message: "Invalid credentials" });
-        }
+        if (!validPassword) return res.status(400).json({ message: "Invalid credentials" });
 
         const token = jwt.sign({
             _id: user._id,
@@ -163,7 +136,7 @@ const getProfile = async (req, res) => {
     }
 };
 
-// Update profile (info + password + phone)
+// Update profile info + password + phone
 const updateProfile = async (req, res) => {
     try {
         const { name, email, phone, password, currentPassword } = req.body;
@@ -190,11 +163,8 @@ const updateProfile = async (req, res) => {
             updateData.password = await bcrypt.hash(password, salt);
         }
 
-        // Replace existing image if new one uploaded
         if (image) {
-            if (user.image && fs.existsSync(user.image)) {
-                fs.unlinkSync(user.image); 
-            }
+            if (user.image && fs.existsSync(user.image)) fs.unlinkSync(user.image);
             updateData.image = image;
         }
 
@@ -214,30 +184,28 @@ const updateProfile = async (req, res) => {
 const updateProfileImage = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No image uploaded" });
-
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Delete old image file if exists
-        if (user.image && fs.existsSync(user.image)) {
-            fs.unlinkSync(user.image);
-        }
+        if (user.image && fs.existsSync(user.image)) fs.unlinkSync(user.image);
 
         const imagePath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
-
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
             { $set: { image: imagePath } },
-            { new: true, runValidators: true }
+            { new: true }
         ).select('-password');
 
-        res.status(200).json({ image: updatedUser.image, message: "Profile image updated successfully" });
+        res.status(200).json({
+            image: `${imagePath}?t=${Date.now()}`,
+            message: "Profile image updated successfully"
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Delete profile image (reset to default)
+// Delete profile image
 const deleteProfileImage = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
@@ -256,4 +224,13 @@ const deleteProfileImage = async (req, res) => {
     }
 };
 
-module.exports = { register, login, verifyEmail, getAllUsers, getProfile, updateProfile, updateProfileImage, deleteProfileImage };
+module.exports = {
+    register,
+    login,
+    verifyEmail,
+    getAllUsers,
+    getProfile,
+    updateProfile,
+    updateProfileImage,
+    deleteProfileImage
+};
