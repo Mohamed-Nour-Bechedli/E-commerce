@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { login, register, verifyEmail, getAllUsers, getProfile, updateProfile, updateProfileImage } = require('../controllers/userController');
+const { login, register, verifyEmail, getAllUsers, getProfile, updateProfile, updateProfileImage, deleteProfileImage } = require('../controllers/userController');
 const { registerValidation, validateUser, loginValidation } = require('../controllers/userValidater');
 const { updateValidation, validateUpdate } = require('../controllers/updateValidater');
 const upload = require('../middlewares/upload');
@@ -16,6 +16,9 @@ router.put('/profile', authUser, upload.single('image'), updateValidation, valid
 
 // route for profile image only
 router.put('/profile/image', authUser, upload.single('image'), updateProfileImage);
+
+// route to delete profile image
+router.delete('/profile/image', authUser, deleteProfileImage);
 
 // Get all users (admin only)
 router.get('/', authUser, authRole, getAllUsers);
