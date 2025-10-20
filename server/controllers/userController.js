@@ -237,4 +237,23 @@ const updateProfileImage = async (req, res) => {
     }
 };
 
-module.exports = { register, login, verifyEmail, getAllUsers, getProfile, updateProfile, updateProfileImage };
+// Delete profile image (reset to default)
+const deleteProfileImage = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        if (user.image && fs.existsSync(user.image)) fs.unlinkSync(user.image);
+        user.image = null;
+        await user.save();
+
+        res.status(200).json({
+            image: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+            message: "Profile image removed successfully"
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+module.exports = { register, login, verifyEmail, getAllUsers, getProfile, updateProfile, updateProfileImage, deleteProfileImage };
