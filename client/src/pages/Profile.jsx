@@ -2,18 +2,15 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../api/axiosConfig";
 import Modal from "../components/common/Modal";
-import { AiOutlineUpload, AiOutlineDelete } from "react-icons/ai"; // icons
+import { AiOutlineUpload, AiOutlineDelete } from "react-icons/ai";
 
 const Profile = () => {
     const { user, updateUserImage } = useContext(AuthContext);
+
     const [name, setName] = useState(user?.name || "");
     const [email, setEmail] = useState(user?.email || "");
     const [phone, setPhone] = useState(user?.phone || "");
-    const [image, setImage] = useState(
-        user?.image
-            ? `${user.image}?t=${Date.now()}`
-            : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-    );
+    const [image, setImage] = useState(user?.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png");
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
 
@@ -33,10 +30,12 @@ const Profile = () => {
             const res = await axiosInstance.put("/users/profile/image", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            // append timestamp to prevent caching
-            const newImage = `${res.data.image}?t=${Date.now()}`;
+
+            // Use backend full URL directly (includes timestamp)
+            const newImage = res.data.image;
             setImage(newImage);
             updateUserImage(newImage);
+
             setModalMessage("Profile image updated successfully!");
             setModalOpen(true);
         } catch (error) {
@@ -50,9 +49,12 @@ const Profile = () => {
     const handleRemoveImage = async () => {
         try {
             const res = await axiosInstance.delete("/users/profile/image");
-            const newImage = `${res.data.image}?t=${Date.now()}`;
+
+            // Use backend-provided default image URL
+            const newImage = res.data.image;
             setImage(newImage);
             updateUserImage(newImage);
+
             setModalMessage(res.data.message);
             setModalOpen(true);
         } catch (error) {
@@ -114,7 +116,6 @@ const Profile = () => {
                     className="w-32 h-32 rounded-full object-cover mb-4 shadow-lg"
                 />
                 <div className="flex space-x-4">
-                    {/* Upload Icon */}
                     <label className="cursor-pointer text-blue-600 hover:text-blue-800 flex items-center gap-1">
                         <AiOutlineUpload size={20} />
                         Upload Image
@@ -126,7 +127,6 @@ const Profile = () => {
                         />
                     </label>
 
-                    {/* Remove Icon */}
                     <button
                         onClick={handleRemoveImage}
                         className="text-red-600 hover:text-red-800 flex items-center gap-1"
