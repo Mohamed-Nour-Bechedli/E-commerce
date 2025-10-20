@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const path = require('path');
+const fs = require('fs');
 
 // Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
@@ -169,6 +170,9 @@ const updateProfile = async (req, res) => {
         const updateData = {};
         const image = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
 
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
         if (name) updateData.name = name;
         if (email) {
             const existingEmail = await User.findOne({ email, _id: { $ne: req.user._id } });
@@ -179,7 +183,6 @@ const updateProfile = async (req, res) => {
 
         if (password) {
             if (!currentPassword) return res.status(400).json({ message: "Current password is required to change password" });
-            const user = await User.findById(req.user._id);
             const validCurrent = await bcrypt.compare(currentPassword, user.password);
             if (!validCurrent) return res.status(400).json({ message: "Current password is incorrect" });
 
@@ -187,7 +190,13 @@ const updateProfile = async (req, res) => {
             updateData.password = await bcrypt.hash(password, salt);
         }
 
-        if (image) updateData.image = image;
+        // Replace existing image if new one uploaded
+        if (image) {
+            if (user.image && fs.existsSync(user.image)) {
+                fs.unlinkSync(user.image); 
+            }
+            updateData.image = image;
+        }
 
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
@@ -205,6 +214,14 @@ const updateProfile = async (req, res) => {
 const updateProfileImage = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Delete old image file if exists
+        if (user.image && fs.existsSync(user.image)) {
+            fs.unlinkSync(user.image);
+        }
 
         const imagePath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
 
