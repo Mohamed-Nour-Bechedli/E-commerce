@@ -164,7 +164,8 @@ const updateProfile = async (req, res) => {
         }
 
         if (image) {
-            if (user.image && fs.existsSync(user.image)) fs.unlinkSync(user.image);
+            // Only delete if image exists and is not default
+            if (user.image && !user.image.includes("flaticon") && fs.existsSync(user.image)) fs.unlinkSync(user.image);
             updateData.image = image;
         }
 
@@ -187,17 +188,24 @@ const updateProfileImage = async (req, res) => {
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        if (user.image && fs.existsSync(user.image)) fs.unlinkSync(user.image);
+        // Delete old image only if exists and is not default
+        if (user.image && !user.image.includes("flaticon") && fs.existsSync(user.image)) {
+            fs.unlinkSync(user.image);
+        }
 
         const imagePath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
             { $set: { image: imagePath } },
             { new: true }
         ).select('-password');
 
+        // Return full URL with timestamp to prevent caching
+        const fullImageUrl = `${req.protocol}://${req.get("host")}/${imagePath}?t=${Date.now()}`;
+
         res.status(200).json({
-            image: `${imagePath}?t=${Date.now()}`,
+            image: fullImageUrl,
             message: "Profile image updated successfully"
         });
     } catch (error) {
@@ -211,12 +219,17 @@ const deleteProfileImage = async (req, res) => {
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        if (user.image && fs.existsSync(user.image)) fs.unlinkSync(user.image);
-        user.image = null;
+        // Delete old image file only if exists and is not default
+        if (user.image && !user.image.includes("flaticon") && fs.existsSync(user.image)) {
+            fs.unlinkSync(user.image);
+        }
+
+        // Set to schema default instead of null
+        user.image = user.schema.path("image").defaultValue;
         await user.save();
 
         res.status(200).json({
-            image: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+            image: user.image,
             message: "Profile image removed successfully"
         });
     } catch (error) {
