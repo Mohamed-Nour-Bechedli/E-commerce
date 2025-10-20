@@ -8,14 +8,15 @@ export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Fetch user profile
     const fetchUserProfile = async () => {
         try {
             const res = await axiosInstance.get("/users/profile");
-            // append timestamp to image to prevent caching
             const profileData = res.data;
-            if (profileData.image) {
-                profileData.image = `${profileData.image}?t=${Date.now()}`;
-            }
+
+            // Use backend-provided image directly (backend already includes timestamp)
+            profileData.image = profileData.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
             setUser(profileData);
         } catch (error) {
             console.error("Failed to fetch user profile:", error);
@@ -87,6 +88,7 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
+    // Update user image in context
     const updateUserImage = (newImage) => {
         setUser((prevUser) => (prevUser ? { ...prevUser, image: newImage } : null));
     };
