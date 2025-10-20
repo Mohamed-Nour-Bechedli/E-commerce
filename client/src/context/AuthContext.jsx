@@ -8,23 +8,26 @@ export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Fetch user profile from backend (always latest data)
     const fetchUserProfile = async () => {
         try {
             const res = await axiosInstance.get("/users/profile");
-            setUser(res.data);
+            // append timestamp to image to prevent caching
+            const profileData = res.data;
+            if (profileData.image) {
+                profileData.image = `${profileData.image}?t=${Date.now()}`;
+            }
+            setUser(profileData);
         } catch (error) {
             console.error("Failed to fetch user profile:", error);
         }
     };
 
-    // Initialize auth state from token
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
             try {
-                jwtDecode(token); 
-                fetchUserProfile(); 
+                jwtDecode(token);
+                fetchUserProfile();
             } catch (error) {
                 console.error("Token decode error:", error);
                 localStorage.removeItem("token");
@@ -33,13 +36,12 @@ export const AuthContextProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    // LOGIN
     const loginUser = async ({ email, password }) => {
         try {
             const res = await axiosInstance.post("/users/login", { email, password });
             const token = res.data.token;
             localStorage.setItem("token", token);
-            await fetchUserProfile(); 
+            await fetchUserProfile();
             return { success: true };
         } catch (error) {
             return {
@@ -49,7 +51,6 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
-    // REGISTER
     const registerUser = async ({ name, email, password }) => {
         try {
             const res = await axiosInstance.post("/users/register", { name, email, password });
@@ -62,13 +63,11 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
-    // LOGOUT
     const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
     };
 
-    // VERIFY EMAIL
     const verifyEmail = async (token) => {
         try {
             const res = await axiosInstance.get(`/users/verify/${token}`);
@@ -88,7 +87,6 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
-    // Update user image dynamically (frontend instant update)
     const updateUserImage = (newImage) => {
         setUser((prevUser) => (prevUser ? { ...prevUser, image: newImage } : null));
     };
@@ -103,7 +101,7 @@ export const AuthContextProvider = ({ children }) => {
                 logout,
                 verifyEmail,
                 updateUserImage,
-                fetchUserProfile, 
+                fetchUserProfile,
             }}
         >
             {!loading && children}
