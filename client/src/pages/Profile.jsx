@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import axiosInstance from "../api/axiosConfig";
 import Modal from "../components/common/Modal";
@@ -17,22 +17,6 @@ const Profile = () => {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    // Recent Orders state
-    const [orders, setOrders] = useState([]);
-
-    // Fetch recent orders
-    useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const res = await axiosInstance.get("/orders/my-orders");
-                setOrders(res.data || []);
-            } catch (error) {
-                console.error("Failed to fetch orders:", error);
-            }
-        };
-        fetchOrders();
-    }, []);
-
     // Update Profile Image
     const handleImageChange = async (e) => {
         const file = e.target.files[0];
@@ -45,9 +29,8 @@ const Profile = () => {
             const res = await axiosInstance.put("/users/profile/image", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
             setImage(res.data.image);
-            updateUserImage(res.data.image); // Update context
+            updateUserImage(res.data.image);
             setModalMessage("Profile image updated successfully!");
             setModalOpen(true);
         } catch (error) {
@@ -57,11 +40,26 @@ const Profile = () => {
         }
     };
 
+    // Remove Profile Image
+    const handleRemoveImage = async () => {
+        try {
+            const res = await axiosInstance.delete("/users/profile/image");
+            setImage(res.data.image);
+            updateUserImage(res.data.image);
+            setModalMessage(res.data.message);
+            setModalOpen(true);
+        } catch (error) {
+            console.error(error);
+            setModalMessage("Failed to remove image.");
+            setModalOpen(true);
+        }
+    };
+
     // Update Profile Info
     const handleProfileSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axiosInstance.put("/users/profile", { name, email, phone });
+            await axiosInstance.put("/users/profile", { name, email, phone });
             setModalMessage("Profile updated successfully!");
             setModalOpen(true);
         } catch (error) {
@@ -81,7 +79,7 @@ const Profile = () => {
         }
 
         try {
-            const res = await axiosInstance.put("/users/profile", {
+            await axiosInstance.put("/users/profile", {
                 password: newPassword,
                 currentPassword,
             });
@@ -108,15 +106,23 @@ const Profile = () => {
                     alt={name}
                     className="w-32 h-32 rounded-full object-cover mb-4 shadow-lg"
                 />
-                <label className="cursor-pointer text-blue-600 hover:underline">
-                    Change Profile Image
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                    />
-                </label>
+                <div className="flex space-x-4">
+                    <label className="cursor-pointer text-blue-600 hover:underline">
+                        Change Profile Image
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                        />
+                    </label>
+                    <button
+                        onClick={handleRemoveImage}
+                        className="text-red-600 hover:underline"
+                    >
+                        Remove Image
+                    </button>
+                </div>
             </div>
 
             {/* Profile Info Form */}
@@ -160,7 +166,7 @@ const Profile = () => {
             </form>
 
             {/* Change Password Form */}
-            <div className="border-t pt-6 mb-8">
+            <div className="border-t pt-6">
                 <h2 className="text-xl font-bold mb-4 text-gray-900">Change Password</h2>
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
                     <div>
@@ -200,29 +206,6 @@ const Profile = () => {
                         Update Password
                     </button>
                 </form>
-            </div>
-
-            {/* Recent Orders */}
-            <div className="border-t pt-6">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">Recent Orders</h2>
-                {orders.length > 0 ? (
-                    <div className="flex space-x-4 overflow-x-auto pb-4">
-                        {orders.map((order) => (
-                            <div key={order._id} className="min-w-[220px] bg-gray-50 p-4 rounded-lg shadow-md">
-                                <p className="font-semibold mb-2">Order ID: {order._id.slice(-6)}</p>
-                                <p className="text-gray-600 mb-1">Status: {order.status}</p>
-                                <p className="text-gray-600 mb-1">
-                                    Total: ${order.total.toFixed(2)}
-                                </p>
-                                <p className="text-gray-500 text-sm">
-                                    {new Date(order.createdAt).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-gray-500">You have no recent orders.</p>
-                )}
             </div>
 
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Profile Update">
