@@ -34,14 +34,14 @@ const Navbar = () => {
 
     return (
         <>
-            <nav className="bg-white border-b border-gray-200 shadow-md relative z-50">
-                <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-                    <NavbarLogo className="text-sky-500 hover:text-sky-600 transition-colors" />
+            <nav className="bg-white border-b border-gray-200 shadow-lg relative z-50">
+                <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <NavbarLogo className="text-indigo-600 hover:text-indigo-700 transition-colors duration-300" />
 
-                    <div className="hidden md:flex items-center space-x-6">
+                    <div className="hidden md:flex items-center space-x-8">
                         <Link
                             to="/products"
-                            className="text-gray-800 font-medium hover:text-sky-500 transition-colors"
+                            className="text-gray-800 font-semibold hover:text-indigo-600 transition-colors duration-300"
                         >
                             Products
                         </Link>
@@ -53,12 +53,12 @@ const Navbar = () => {
                         />
                     </div>
 
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-6">
                         <NavbarSearch
                             categories={categories}
                             showSearch={showSearch}
                             setShowSearch={setShowSearch}
-                            inputClassName="pl-10 pr-3 py-1 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
+                            inputClassName="pl-12 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition-all duration-200"
                         />
 
                         <NavbarIcons
@@ -67,10 +67,11 @@ const Navbar = () => {
                             setIsOpen={setIsOpen}
                             showSearch={showSearch}
                             setShowSearch={setShowSearch}
-                            iconClassName="text-gray-800 hover:text-sky-500 transition-colors"
-                            cartBadgeClassName="bg-sky-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full absolute -top-2 -right-2"
+                            iconClassName="text-gray-800 hover:text-indigo-600 transition-colors duration-300"
+                            cartBadgeClassName="bg-indigo-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full absolute -top-1 -right-1 transition-all"
                             userAvatar={user?.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
                         />
+
                     </div>
                 </div>
 
@@ -80,7 +81,7 @@ const Navbar = () => {
                     categories={categories}
                     activeDropdown={activeDropdown}
                     setActiveDropdown={setActiveDropdown}
-                    mobileMenuClassName="bg-white shadow-md p-4"
+                    mobileMenuClassName="bg-white shadow-lg p-6"
                 />
             </nav>
 

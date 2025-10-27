@@ -104,11 +104,26 @@ const NavbarIcons = ({
             >
                 <FaShoppingCart size={20} />
                 {totalQuantity > 0 && (
-                    <span className={cartBadgeClassName} style={{ position: "absolute", top: "-0.25rem", right: "-0.25rem" }}>
+                    <span
+                        className={cartBadgeClassName}
+                        style={{
+                            position: "absolute",
+                            top: "-0.35rem",  // Move the badge slightly up from the icon
+                            right: "-0.35rem", // Move the badge slightly right from the icon
+                            width: ".9rem",  // Smaller width
+                            height: ".9rem", // Smaller height
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "0.75rem",  // Smaller font size for the number
+                            borderRadius: "50%",  // Ensure the badge remains circular
+                        }}
+                    >
                         {totalQuantity}
                     </span>
                 )}
             </button>
+
 
             {/* Mobile menu toggle */}
             <button
