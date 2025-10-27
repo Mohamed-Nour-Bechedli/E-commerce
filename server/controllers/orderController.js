@@ -69,6 +69,34 @@ const getOrderById = async (req, res) => {
     }
 };
 
+// User cancels their own order
+const cancelOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const order = await Order.findById(id);
+        if (!order) return res.status(404).json({ message: "Order not found." });
+
+        // Only the owner can cancel
+        if (order.user.toString() !== req.user._id) {
+            return res.status(403).json({ message: "Access denied." });
+        }
+
+        // Can only cancel if Pending
+        if (order.status !== "Pending") {
+            return res.status(400).json({ message: "Only pending orders can be cancelled." });
+        }
+
+        order.status = "Cancelled";
+        await order.save();
+
+        res.status(200).json({ message: "Order cancelled successfully.", order });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+
 // Get all orders (admin)
 const getAllOrders = async (req, res) => {
     try {
@@ -105,4 +133,4 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, getAllOrders, getUserOrders, updateOrderStatus, getOrderById };
+module.exports = { createOrder, getAllOrders, getUserOrders, updateOrderStatus, getOrderById, cancelOrder };
