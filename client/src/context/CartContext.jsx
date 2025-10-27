@@ -8,10 +8,10 @@ export const CartContextProvider = ({ children }) => {
     // Add product or increase quantity
     const addToCart = (product) => {
         setCartItems((prev) => {
-            const exist = prev.find((item) => item.id === product.id);
+            const exist = prev.find((item) => item._id === product._id);
             if (exist) {
                 return prev.map((item) =>
-                    item.id === product.id
+                    item._id === product._id
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
@@ -22,31 +22,27 @@ export const CartContextProvider = ({ children }) => {
     };
 
     // Decrease quantity
-    const decreaseFromCart = (id) => {
+    const decreaseFromCart = (_id) => {
         setCartItems((prev) =>
             prev
                 .map((item) =>
-                    item.id === id
-                        ? { ...item, quantity: item.quantity - 1 }
-                        : item
+                    item._id === _id ? { ...item, quantity: item.quantity - 1 } : item
                 )
-                .filter((item) => item.quantity >= 1) // remove only if less than 1
+                .filter((item) => item.quantity >= 1)
         );
     };
 
     // Remove item completely
-    const removeFromCart = (id) => {
-        setCartItems((prev) => prev.filter((item) => item.id !== id));
+    const removeFromCart = (_id) => {
+        setCartItems((prev) => prev.filter((item) => item._id !== _id));
     };
 
     const clearCart = () => setCartItems([]);
 
-    const updateQuantity = (id, quantity) => {
+    const updateQuantity = (_id, quantity) => {
         if (quantity < 1) return;
         setCartItems((prev) =>
-            prev.map((item) =>
-                item.id === id ? { ...item, quantity } : item
-            )
+            prev.map((item) => (item._id === _id ? { ...item, quantity } : item))
         );
     };
 

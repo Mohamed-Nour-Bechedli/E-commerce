@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 import { Navigate } from "react-router-dom";
+import axiosInstance from "../api/axiosConfig";
 
 const Checkout = () => {
     const { cartItems, total, clearCart } = useContext(CartContext);
@@ -17,8 +18,10 @@ const Checkout = () => {
 
     const [errors, setErrors] = useState({});
     const [orderPlaced, setOrderPlaced] = useState(false);
+    const [apiError, setApiError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
-    // Protected
+    // Protected route
     if (!user) return <Navigate to="/login" replace />;
 
     if (cartItems.length === 0)
@@ -45,12 +48,45 @@ const Checkout = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handlePlaceOrder = () => {
+    const handlePlaceOrder = async () => {
         if (!validateForm()) return;
 
-        // Simulate order placement
-        setOrderPlaced(true);
-        clearCart();
+        setSubmitting(true);
+        setApiError("");
+
+        try {
+            // Prepare products array for backend
+            const products = cartItems.map((item) => ({
+                productId: item._id, 
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image,
+            }));
+
+            const payload = {
+                products,
+                totalAmount: total,
+            };
+
+            const res = await axiosInstance.post("/orders", payload, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (res.status === 201) {
+                setOrderPlaced(true);
+                clearCart();
+            }
+        } catch (error) {
+            console.error("Order placement error:", error);
+            setApiError(
+                error.response?.data?.message || "Failed to place the order."
+            );
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -68,14 +104,16 @@ const Checkout = () => {
                     <div>
                         <h3 className="text-xl font-semibold mb-4">Your Cart</h3>
                         {cartItems.map((item) => (
-                            <div key={item.id} className="flex justify-between mb-2">
-                                <span>{item.name} x {item.quantity}</span>
-                                <span>${item.price * item.quantity}</span>
+                            <div key={item._id} className="flex justify-between mb-2">
+                                <span>
+                                    {item.name} x {item.quantity}
+                                </span>
+                                <span>${(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                         ))}
                         <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
                             <span>Total:</span>
-                            <span>${total}</span>
+                            <span>${total.toFixed(2)}</span>
                         </div>
                     </div>
 
@@ -141,11 +179,15 @@ const Checkout = () => {
                         <p className="text-gray-700">Cash on Delivery</p>
                     </div>
 
+                    {apiError && <p className="text-red-600 text-center">{apiError}</p>}
+
                     <button
                         onClick={handlePlaceOrder}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium transition-all duration-300"
+                        disabled={submitting}
+                        className={`w-full py-3 rounded-full font-medium transition-all duration-300 text-white ${submitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                            }`}
                     >
-                        Place Order
+                        {submitting ? "Placing Order..." : "Place Order"}
                     </button>
                 </div>
             )}
