@@ -12,6 +12,7 @@ const OrderDetails = () => {
     const [error, setError] = useState("");
     const [cancelling, setCancelling] = useState(false);
 
+    // Fetch order details
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -30,21 +31,22 @@ const OrderDetails = () => {
         if (user) fetchOrder();
     }, [id, user]);
 
+    // Cancel the order
     const handleCancelOrder = async () => {
         if (!window.confirm("Are you sure you want to cancel this order?")) return;
 
         setCancelling(true);
         try {
-            await axiosInstance.put(
-                `/orders/${id}/status`,
-                { status: "Cancelled" },
+            const res = await axiosInstance.put(
+                `/orders/${id}/cancel`,
+                {},
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 }
             );
-            setOrder({ ...order, status: "Cancelled" });
+            setOrder(res.data.order); // update order state with cancelled order
         } catch (err) {
             alert(err.response?.data?.message || "Failed to cancel order.");
         } finally {
