@@ -21,12 +21,12 @@ const CartSidebar = ({ isOpen, onClose }) => {
 
     // Decrease item quantity
     const handleDecrement = (item) => {
-        decreaseFromCart(item.id);
+        decreaseFromCart(item._id);
     };
 
     // Remove item completely
     const handleRemove = (item) => {
-        removeFromCart(item.id);
+        removeFromCart(item._id);
     };
 
     return (
@@ -46,7 +46,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                     <p className="text-gray-600">Your cart is empty.</p>
                 ) : (
                     cartItems.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between">
+                        <div key={item._id} className="flex items-center justify-between">
                             <div className="flex-1">
                                 <p className="font-medium">{item.name}</p>
                                 <p className="text-gray-500">${item.price}</p>
