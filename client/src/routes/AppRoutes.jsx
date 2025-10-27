@@ -14,6 +14,7 @@ import VerifyNotice from "../pages/VerifyNotice";
 import VerifyEmail from "../pages/VerifyEmail";
 import Profile from "../pages/Profile";
 import Orders from "../pages/Orders";
+import OrderDetails from "../pages/OrderDetails";
 // import NotFound from "../pages/NotFound";
 
 const AppRoutes = () => {
@@ -35,12 +36,21 @@ const AppRoutes = () => {
                     <Route path="/verify/:token" element={<VerifyEmail />} />
 
                     {/* Protected routes */}
+                    <Route
+                        path="/orders/:id"
+                        element={
+                            <ProtectedRoute>
+                                <OrderDetails />
+                            </ProtectedRoute>
+                        }
+                    />
+
                     <Route path="/orders"
-                           element={
+                        element={
                             <ProtectedRoute>
                                 <Orders />
                             </ProtectedRoute>
-                           } 
+                        }
                     />
 
                     <Route

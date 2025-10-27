@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import axiosInstance from "../api/axiosConfig";
 import { AuthContext } from "../context/AuthContext";
 
@@ -62,16 +63,14 @@ const Orders = () => {
 
             <div className="space-y-6">
                 {orders.map((order) => (
-                    <div
-                        key={order._id}
-                        className="border rounded-lg shadow-sm p-4 bg-white"
-                    >
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="font-semibold text-lg">
-                                Order #{order._id.slice(-6)}
-                            </h2>
-                            <span
-                                className={`px-3 py-1 rounded-full text-sm font-medium ${order.status === "Pending"
+                    <Link key={order._id} to={`/orders/${order._id}`}>
+                        <div className="border rounded-lg shadow-sm p-4 bg-white hover:bg-gray-50 transition">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="font-semibold text-lg">
+                                    Order #{order._id.slice(-6)}
+                                </h2>
+                                <span
+                                    className={`px-3 py-1 rounded-full text-sm font-medium ${order.status === "Pending"
                                         ? "bg-yellow-100 text-yellow-700"
                                         : order.status === "Processing"
                                             ? "bg-blue-100 text-blue-700"
@@ -80,47 +79,48 @@ const Orders = () => {
                                                 : order.status === "Delivered"
                                                     ? "bg-green-100 text-green-700"
                                                     : "bg-red-100 text-red-700"
-                                    }`}
-                            >
-                                {order.status}
-                            </span>
-                        </div>
-
-                        <div className="space-y-2">
-                            {order.products.map((product) => (
-                                <div
-                                    key={product.productId}
-                                    className="flex items-center justify-between border-b pb-2"
+                                        }`}
                                 >
-                                    <div className="flex items-center space-x-3">
-                                        <img
-                                            src={product.image}
-                                            alt={product.name}
-                                            className="w-12 h-12 object-cover rounded"
-                                        />
-                                        <div>
-                                            <p className="font-medium">{product.name}</p>
-                                            <p className="text-gray-500 text-sm">
-                                                Qty: {product.quantity}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <p className="text-gray-700 font-semibold">
-                                        ${product.price.toFixed(2)}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+                                    {order.status}
+                                </span>
+                            </div>
 
-                        <div className="mt-4 flex justify-between items-center">
-                            <p className="text-gray-600 text-sm">
-                                Placed on: {new Date(order.createdAt).toLocaleDateString()}
-                            </p>
-                            <p className="font-bold text-gray-800">
-                                Total: ${order.totalAmount.toFixed(2)}
-                            </p>
+                            <div className="space-y-2">
+                                {order.products.map((product) => (
+                                    <div
+                                        key={product.productId}
+                                        className="flex items-center justify-between border-b pb-2"
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <img
+                                                src={product.image}
+                                                alt={product.name}
+                                                className="w-12 h-12 object-cover rounded"
+                                            />
+                                            <div>
+                                                <p className="font-medium">{product.name}</p>
+                                                <p className="text-gray-500 text-sm">
+                                                    Qty: {product.quantity}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <p className="text-gray-700 font-semibold">
+                                            ${(product.price * product.quantity).toFixed(2)}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-4 flex justify-between items-center">
+                                <p className="text-gray-600 text-sm">
+                                    Placed on: {new Date(order.createdAt).toLocaleDateString()}
+                                </p>
+                                <p className="font-bold text-gray-800">
+                                    Total: ${order.totalAmount.toFixed(2)}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </div>
