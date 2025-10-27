@@ -5,10 +5,12 @@ import { FaTimes, FaPlus, FaMinus, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 const CartSidebar = ({ isOpen, onClose }) => {
-    const { cartItems, addToCart, removeFromCart } = useContext(CartContext);
+    const { cartItems, addToCart, removeFromCart, decreaseFromCart, total } =
+        useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    // Add item (increase quantity by 1)
     const handleAdd = (item) => {
         if (!user) {
             navigate("/login");
@@ -17,15 +19,12 @@ const CartSidebar = ({ isOpen, onClose }) => {
         }
     };
 
+    // Decrease item quantity
     const handleDecrement = (item) => {
-        if (item.quantity > 1) {
-            // decrease quantity by 1
-            addToCart({ ...item, quantity: -1 }); 
-        } else {
-            removeFromCart(item.id); 
-        }
+        decreaseFromCart(item.id);
     };
 
+    // Remove item completely
     const handleRemove = (item) => {
         removeFromCart(item.id);
     };
@@ -42,7 +41,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                 </button>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto">
                 {cartItems.length === 0 ? (
                     <p className="text-gray-600">Your cart is empty.</p>
                 ) : (
@@ -79,7 +78,14 @@ const CartSidebar = ({ isOpen, onClose }) => {
             </div>
 
             {cartItems.length > 0 && (
-                <div className="p-4 border-t">
+                <div className="p-4 border-t space-y-3">
+                    {/* Total display section */}
+                    <div className="flex justify-between items-center">
+                        <span className="text-lg font-semibold">Total:</span>
+                        <span className="text-lg font-bold">${total.toFixed(2)}</span>
+                    </div>
+
+                    {/* Go to Cart button */}
                     <Link
                         to="/cart"
                         className="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full"
