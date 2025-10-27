@@ -34,20 +34,19 @@ const NavbarMobileMenu = ({
                     >
                         {cat.name}
                         <FaChevronDown
-                            className={`ml-2 transition-transform duration-200 ${activeDropdown === idx ? "rotate-180" : "rotate-0"
-                                }`}
+                            className={`ml-2 transition-transform duration-200 ${activeDropdown === idx ? "rotate-180" : "rotate-0"}`}
                         />
                     </button>
                     {activeDropdown === idx && (
                         <ul className="mt-2 ml-4 space-y-1">
-                            {cat.products.map((product, i) => (
+                            {cat.subCategories?.map((subCategory, i) => (
                                 <li key={i}>
                                     <Link
-                                        to={`/category/${encodeURIComponent(cat.name)}`}
+                                        to={`/category/${encodeURIComponent(cat.name)}?sub=${encodeURIComponent(subCategory)}`}
                                         className="block px-4 py-2 text-gray-700 rounded-md hover:bg-gray-100 transition-colors"
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        {product}
+                                        {subCategory}
                                     </Link>
                                 </li>
                             ))}
