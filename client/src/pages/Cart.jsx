@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 
 const Cart = () => {
-    const { cartItems, removeFromCart, total, clearCart, updateQuantity } =
+    const { cartItems, removeFromCart, clearCart, updateQuantity } =
         useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -17,6 +17,12 @@ const Cart = () => {
         }
         action();
     };
+
+    // Compute total dynamically, taking salePrice into account
+    const total = cartItems.reduce(
+        (acc, item) => acc + (item.salePrice || item.price) * item.quantity,
+        0
+    );
 
     if (cartItems.length === 0)
         return (
@@ -34,7 +40,7 @@ const Cart = () => {
             <div className="space-y-4">
                 {cartItems.map((item) => (
                     <div
-                        key={item.id}
+                        key={item._id} 
                         className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md"
                     >
                         <img
@@ -43,17 +49,22 @@ const Cart = () => {
                             className="w-24 h-24 object-contain"
                         />
                         <div className="flex-1 px-4">
-                            <h3 className="font-semibold text-gray-900">
-                                {item.name}
-                            </h3>
-                            <p className="text-gray-700">${item.price}</p>
+                            <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                            <p className="text-gray-700">
+                                ${item.salePrice ? item.salePrice.toFixed(2) : item.price.toFixed(2)}
+                                {item.salePrice && (
+                                    <span className="line-through text-gray-400 ml-2">
+                                        ${item.price.toFixed(2)}
+                                    </span>
+                                )}
+                            </p>
 
                             {/* Quantity selector */}
                             <div className="flex items-center mt-2 space-x-2">
                                 <button
                                     onClick={() =>
                                         handleProtectedAction(() =>
-                                            updateQuantity(item.id, item.quantity - 1)
+                                            updateQuantity(item._id, item.quantity - 1)
                                         )
                                     }
                                     className="bg-gray-200 px-2 rounded"
@@ -64,7 +75,7 @@ const Cart = () => {
                                 <button
                                     onClick={() =>
                                         handleProtectedAction(() =>
-                                            updateQuantity(item.id, item.quantity + 1)
+                                            updateQuantity(item._id, item.quantity + 1)
                                         )
                                     }
                                     className="bg-gray-200 px-2 rounded"
@@ -75,7 +86,7 @@ const Cart = () => {
                         </div>
                         <button
                             onClick={() =>
-                                handleProtectedAction(() => removeFromCart(item.id))
+                                handleProtectedAction(() => removeFromCart(item._id))
                             }
                             className="text-red-600 hover:text-red-800"
                         >
@@ -85,7 +96,7 @@ const Cart = () => {
                 ))}
             </div>
             <div className="mt-6 flex justify-between items-center">
-                <p className="text-xl font-bold">Total: ${total}</p>
+                <p className="text-xl font-bold">Total: ${total.toFixed(2)}</p>
                 <div className="space-x-4">
                     <button
                         onClick={() => handleProtectedAction(clearCart)}
