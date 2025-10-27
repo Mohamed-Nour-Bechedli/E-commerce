@@ -1,11 +1,13 @@
 import { useState, useEffect, useContext } from "react";
 import { FaArrowRight } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
 
 const HeroCarousel = () => {
     const { products, loading } = useContext(ProductContext);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [featuredProducts, setFeaturedProducts] = useState([]);
+    const navigate = useNavigate(); // <-- added
 
     // Filter featured products whenever products change
     useEffect(() => {
@@ -68,7 +70,10 @@ const HeroCarousel = () => {
                                 <span>${product.price.toFixed(2)}</span>
                             )}
                         </div>
-                        <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center space-x-2 transition">
+                        <button
+                            onClick={() => navigate("/products")} 
+                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center space-x-2 transition"
+                        >
                             <span>Shop Now</span> <FaArrowRight />
                         </button>
                     </div>
