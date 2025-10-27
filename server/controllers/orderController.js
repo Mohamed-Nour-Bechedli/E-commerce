@@ -35,7 +35,7 @@ const createOrder = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Create order error:", error); 
+        console.error("Create order error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
@@ -45,6 +45,25 @@ const getUserOrders = async (req, res) => {
     try {
         const orders = await Order.find({ user: req.user._id }).sort({ createAt: -1 });
         res.status(200).json({ orders });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// Get single order by ID (user)
+const getOrderById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const order = await Order.findById(id);
+
+        if (!order) return res.status(404).json({ message: "Order not found." });
+
+        // Only the user who owns the order can view it
+        if (order.user.toString() !== req.user._id) {
+            return res.status(403).json({ message: "Access denied." });
+        }
+
+        res.status(200).json({ order });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
@@ -86,4 +105,4 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, getAllOrders, getUserOrders, updateOrderStatus };
+module.exports = { createOrder, getAllOrders, getUserOrders, updateOrderStatus, getOrderById };
