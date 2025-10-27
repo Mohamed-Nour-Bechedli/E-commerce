@@ -18,7 +18,7 @@ const createProduct = async (req, res) => {
             description,
             price,
             category,
-            subCategory, 
+            subCategory,
             stock,
             brand,
             salePrice,
@@ -67,6 +67,31 @@ const getProductById = async (req, res) => {
     }
 };
 
+// Get categories with sub-categories
+const getCategoriesWithSub = async (req, res) => {
+    try {
+        const products = await Product.find();
+
+        const categoryMap = {};
+
+        products.forEach(product => {
+            const { category, subCategory } = product;
+            if (!categoryMap[category]) categoryMap[category] = new Set();
+            if (subCategory) categoryMap[category].add(subCategory);
+        });
+
+        const categories = Object.keys(categoryMap).map(cat => ({
+            name: cat,
+            subCategories: Array.from(categoryMap[cat])
+        }));
+
+        res.status(200).json(categories);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
 // Update product
 const updateProduct = async (req, res) => {
     try {
@@ -90,7 +115,7 @@ const updateProduct = async (req, res) => {
         if (description) product.description = description;
         if (price) product.price = price;
         if (category) product.category = category;
-        if (subCategory !== undefined) product.subCategory = subCategory; 
+        if (subCategory !== undefined) product.subCategory = subCategory;
         if (stock) product.stock = stock;
         if (brand) product.brand = brand;
         if (salePrice) product.salePrice = salePrice;
@@ -146,4 +171,4 @@ const uploadSingle = async (req, res) => {
     }
 };
 
-module.exports = { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, uploadSingle };
+module.exports = { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, uploadSingle, getCategoriesWithSub };
