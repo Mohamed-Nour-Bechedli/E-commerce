@@ -24,17 +24,17 @@ const NavbarCategories = ({ categories }) => {
 
                     <div
                         className={`absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 shadow-lg rounded-md py-2 transition-all duration-200 ease-in-out transform ${activeDropdown === idx
-                                ? "opacity-100 translate-y-0 visible"
-                                : "opacity-0 -translate-y-2 invisible"
+                            ? "opacity-100 translate-y-0 visible"
+                            : "opacity-0 -translate-y-2 invisible"
                             } group-hover:visible`}
                     >
-                        {cat.products.map((product, i) => (
+                        {cat.subCategories?.map((subCategory, i) => (
                             <Link
                                 key={i}
-                                to={`/category/${encodeURIComponent(cat.name)}`}
+                                to={`/category/${encodeURIComponent(cat.name)}?sub=${encodeURIComponent(subCategory)}`}
                                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                             >
-                                {product}
+                                {subCategory}
                             </Link>
                         ))}
                     </div>

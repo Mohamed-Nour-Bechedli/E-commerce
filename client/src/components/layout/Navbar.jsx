@@ -16,21 +16,28 @@ const Navbar = () => {
 
     const { user } = useContext(AuthContext);
 
+    // Hardcoded categories with subcategories
     const categories = [
-        { name: "PC Gamers", products: ["Gaming Laptop", "Custom PC Build", "Monitors"] },
-        { name: "Smartphones", products: ["iPhone 15", "Samsung Galaxy S24", "OnePlus 12"] },
-        { name: "Accessories", products: ["Keyboard", "Mouse", "Headphones"] },
+        {
+            name: "PC Gamers",
+            subCategories: ["Gaming Laptop", "Custom PC Build", "Monitors"]
+        },
+        {
+            name: "Smartphones",
+            subCategories: ["iPhone", "Android", "Other"]
+        },
+        {
+            name: "Accessories",
+            subCategories: ["Keyboard", "Mouse", "Headphones"]
+        }
     ];
 
     return (
         <>
             <nav className="bg-white border-b border-gray-200 shadow-md relative z-50">
                 <div className="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
-
-                    {/* Left: Logo */}
                     <NavbarLogo className="text-sky-500 hover:text-sky-600 transition-colors" />
 
-                    {/* Center: Products link + Categories */}
                     <div className="hidden md:flex items-center space-x-6">
                         <Link
                             to="/products"
@@ -43,13 +50,9 @@ const Navbar = () => {
                             categories={categories}
                             activeDropdown={activeDropdown}
                             setActiveDropdown={setActiveDropdown}
-                            className="flex space-x-6 text-gray-800 font-medium"
-                            dropdownClassName="bg-white shadow-lg rounded-lg p-4 text-gray-800"
-                            hoverTextColor="text-sky-500"
                         />
                     </div>
 
-                    {/* Right: Search + Icons */}
                     <div className="flex items-center space-x-4">
                         <NavbarSearch
                             categories={categories}
@@ -71,7 +74,6 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
                 <NavbarMobileMenu
                     isOpen={isOpen}
                     setIsOpen={setIsOpen}
@@ -82,7 +84,6 @@ const Navbar = () => {
                 />
             </nav>
 
-            {/* Cart Sidebar */}
             <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
         </>
     );
