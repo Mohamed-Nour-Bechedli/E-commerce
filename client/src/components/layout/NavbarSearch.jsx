@@ -12,12 +12,14 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
     useEffect(() => {
         if (!searchQuery.trim()) return setSearchResults([]);
         const query = searchQuery.toLowerCase();
+
         const productMatches = products.filter((p) =>
             p.name.toLowerCase().includes(query)
         );
         const categoryMatches = categories.filter((c) =>
             c.name.toLowerCase().includes(query)
         );
+
         setSearchResults([...categoryMatches, ...productMatches]);
     }, [searchQuery, products, categories]);
 
@@ -34,7 +36,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
             const product = products.find(
                 (p) => p.name.toLowerCase() === searchQuery.toLowerCase()
             );
-            if (product) navigate(`/product/${product.id}`);
+            if (product) navigate(`/product/${product._id}`);
         }
 
         setSearchQuery("");
@@ -46,11 +48,11 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
         const isCategory = item.products !== undefined;
         const linkTo = isCategory
             ? `/category/${encodeURIComponent(item.name)}`
-            : `/product/${item.id}`;
+            : `/product/${item._id}`;
 
         return (
             <div
-                key={isCategory ? `cat-${item.name}` : `prod-${item.id}`}
+                key={isCategory ? `cat-${item.name}` : `prod-${item._id}`}
                 className="flex items-center px-4 py-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
                 onClick={() => {
                     navigate(linkTo);
