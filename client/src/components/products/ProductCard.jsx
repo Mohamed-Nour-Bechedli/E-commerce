@@ -5,7 +5,7 @@ import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 import Modal from "../common/Modal";
 
-const ProductCard = ({ _id, name, image, price, stock = 0 }) => {
+const ProductCard = ({ _id, name, image, price, salePrice, stock = 0 }) => {
     const { addToCart } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -16,7 +16,7 @@ const ProductCard = ({ _id, name, image, price, stock = 0 }) => {
             navigate("/login");
             return;
         }
-        addToCart({ _id, name, image, price, stock, quantity: 1 });
+        addToCart({ _id, name, image, price: salePrice || price, stock, quantity: 1 }); 
         setModalOpen(true);
     };
 
@@ -27,7 +27,17 @@ const ProductCard = ({ _id, name, image, price, stock = 0 }) => {
                 <div className="p-4 flex flex-col justify-between h-40">
                     <div>
                         <h3 className="font-semibold text-gray-900 mb-2">{name}</h3>
-                        <p className="text-blue-600 font-bold text-lg">${price}</p>
+
+                        {/* Price display */}
+                        {salePrice && salePrice < price ? (
+                            <p className="text-lg font-bold text-blue-600">
+                                <span className="text-red-500 line-through mr-2">${price.toFixed(2)}</span>
+                                <span>${salePrice.toFixed(2)}</span>
+                            </p>
+                        ) : (
+                            <p className="text-lg font-bold text-blue-600">${price.toFixed(2)}</p>
+                        )}
+
                         <p className={`text-sm font-medium ${stock > 0 ? "text-green-600" : "text-red-500"}`}>
                             {stock > 0 ? `${stock} in stock` : "Out of stock"}
                         </p>
@@ -52,3 +62,4 @@ const ProductCard = ({ _id, name, image, price, stock = 0 }) => {
 };
 
 export default ProductCard;
+
