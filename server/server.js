@@ -1,6 +1,7 @@
 require('dotenv').config();
 const userRouter = require('./routes/userRouter');
 const productRouter = require('./routes/productRouter');
+const orderRouter = require('./routes/orderRouter');
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
@@ -19,6 +20,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // routes
 app.use('/api/users', userRouter);
 app.use('/api/products', productRouter);
+app.use('/api/orders', orderRouter);
 
 
 // Connect to database
