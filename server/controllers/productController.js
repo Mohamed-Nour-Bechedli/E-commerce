@@ -2,11 +2,10 @@ const Product = require('../models/product');
 const path = require('path');
 const fs = require('fs');
 
-
 // Create a new product
 const createProduct = async (req, res) => {
     try {
-        const { name, description, price, category, stock, brand, salePrice, isNew, isFeatured } = req.body;
+        const { name, description, price, category, subCategory, stock, brand, salePrice, isNew, isFeatured } = req.body;
 
         const imagePath = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
 
@@ -19,6 +18,7 @@ const createProduct = async (req, res) => {
             description,
             price,
             category,
+            subCategory, 
             stock,
             brand,
             salePrice,
@@ -35,7 +35,6 @@ const createProduct = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Server Error", error: error.message });
-
     }
 };
 
@@ -68,7 +67,7 @@ const getProductById = async (req, res) => {
     }
 };
 
-// update product
+// Update product
 const updateProduct = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -85,12 +84,13 @@ const updateProduct = async (req, res) => {
             product.image = path.join("uploads", req.file.filename).replace(/\\/g, "/");
         }
 
-        const { name, description, price, category, stock, brand, salePrice, isNew, isFeatured } = req.body;
+        const { name, description, price, category, subCategory, stock, brand, salePrice, isNew, isFeatured } = req.body;
 
         if (name) product.name = name;
         if (description) product.description = description;
         if (price) product.price = price;
         if (category) product.category = category;
+        if (subCategory !== undefined) product.subCategory = subCategory; 
         if (stock) product.stock = stock;
         if (brand) product.brand = brand;
         if (salePrice) product.salePrice = salePrice;
@@ -145,6 +145,5 @@ const uploadSingle = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
-
 
 module.exports = { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, uploadSingle };

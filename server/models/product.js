@@ -1,69 +1,75 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-    name :{
-        type : String,
-        required : true,
-        trim : true
+    name: {
+        type: String,
+        required: true,
+        trim: true
     },
 
-    description : {
-        type : String,
-        required : true,
-        trim : true
+    description: {
+        type: String,
+        required: true,
+        trim: true
     },
 
-    price : {
-        type : Number,
-        required : true,
-        min : 0
+    price: {
+        type: Number,
+        required: true,
+        min: 0
     },
 
-    category : {
-        type : String,
-        required : true,
-        enum : ["PC Gamers", "Smartphones", "Accessories"]
+    category: {
+        type: String,
+        required: true,
+        enum: ["PC Gamers", "Smartphones", "Accessories"]
     },
 
-    stock : {
-        type : Number,
-        required : true,
-        min : 0,
+    subCategory: {
+        type: String,
+        default: null, 
+        trim: true
     },
 
-    image : {
-        type : String,
-        required : true,
+    stock: {
+        type: Number,
+        required: true,
+        min: 0
     },
 
-    brand : {
-        type : String,
-        default : "Unknown"
+    image: {
+        type: String,
+        required: true
     },
 
-    rating : {
-        type : Number,
-        default : 0,
-        min : 0,
-        max : 5
+    brand: {
+        type: String,
+        default: "Unknown"
     },
 
-    salePrice : {
-        type : Number,
-        default : null
+    rating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
     },
 
-    isNew : {
-        type : Boolean,
-        default : false
+    salePrice: {
+        type: Number,
+        default: null
     },
 
-    isFeatured : {
-        type : Boolean,
-        default : false
+    isNew: {
+        type: Boolean,
+        default: false
+    },
+
+    isFeatured: {
+        type: Boolean,
+        default: false
     }
 },
-{ timestamps: true }
+    { timestamps: true }
 );
 
 const Product = mongoose.model('Product', productSchema);
