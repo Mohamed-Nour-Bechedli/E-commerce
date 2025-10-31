@@ -5,17 +5,17 @@ const Order = require("../models/order");
 // Admin dashboard stats
 const getDashboardStats = async (req, res) => {
   try {
-    // 1️Count totals
+    // Count totals
     const totalUsers = await User.countDocuments();
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
 
-    // 2️Aggregate order statuses
+    // Aggregate order statuses
     const statusStats = await Order.aggregate([
       { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
 
-    // 3️Get 5 most recent orders
+    // Get 5 most recent orders
     const recentOrders = await Order.find()
       .sort({ createdAt: -1 })
       .limit(5)
