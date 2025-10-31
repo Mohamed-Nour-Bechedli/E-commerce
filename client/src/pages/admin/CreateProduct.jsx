@@ -1,4 +1,3 @@
-// src/pages/admin/CreateProduct.jsx
 import { useState } from "react";
 import axiosInstance from "../../api/axiosConfig";
 import { toast } from "react-toastify";
