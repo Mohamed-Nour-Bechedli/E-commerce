@@ -1,23 +1,35 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
-import Modal from "../common/Modal";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ProductCard = ({ _id, name, image, price, stock = 0 }) => {
     const { addToCart } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [modalOpen, setModalOpen] = useState(false);
 
     const handleAddToCart = () => {
+        console.log("toast:", toast);
         if (!user) {
             navigate("/login");
             return;
         }
+
+        // Add to cart functionality
         addToCart({ _id, name, image, price, stock, quantity: 1 });
-        setModalOpen(true);
+
+        // Display Toastify notification
+        toast.success(`${name} has been added to your cart!`, {
+            position: "top-right",
+            autoClose: 3000,  // Duration of toast in milliseconds
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+        });
     };
 
     return (
@@ -39,14 +51,11 @@ const ProductCard = ({ _id, name, image, price, stock = 0 }) => {
                 <button
                     onClick={handleAddToCart}
                     className="mt-2 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-full font-medium transition-all duration-300 w-full"
+                    disabled={stock === 0}  // Disable the button if the product is out of stock
                 >
                     <FaShoppingCart className="mr-2" /> Add to Cart
                 </button>
             </div>
-
-            <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Product Added!">
-                <p>The product has been added to your cart successfully.</p>
-            </Modal>
         </div>
     );
 };

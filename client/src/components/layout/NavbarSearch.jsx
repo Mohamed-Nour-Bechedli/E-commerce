@@ -11,11 +11,15 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
 
     useEffect(() => {
         if (!searchQuery.trim()) return setSearchResults([]);
+
         const query = searchQuery.toLowerCase();
 
+        // Match products by name
         const productMatches = products.filter((p) =>
             p.name.toLowerCase().includes(query)
         );
+
+        // Match categories by name
         const categoryMatches = categories.filter((c) =>
             c.name.toLowerCase().includes(query)
         );
@@ -30,6 +34,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
         const category = categories.find(
             (c) => c.name.toLowerCase() === searchQuery.toLowerCase()
         );
+
         if (category) {
             navigate(`/category/${encodeURIComponent(category.name)}`);
         } else {
@@ -45,7 +50,9 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
     };
 
     const renderSuggestion = (item) => {
-        const isCategory = item.products !== undefined;
+        // Fix category detection for your current data
+        const isCategory = item.subCategories !== undefined;
+
         const linkTo = isCategory
             ? `/category/${encodeURIComponent(item.name)}`
             : `/product/${item._id}`;
@@ -75,7 +82,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
                         <div className="flex-1">
                             <div className="text-gray-800 font-medium">{item.name}</div>
                             <div className="text-gray-500 text-sm">
-                                {item.category} - ${item.price.toFixed(2)}
+                                ${item.price.toFixed(2)}
                             </div>
                         </div>
                     </>
@@ -87,10 +94,7 @@ const NavbarSearch = ({ categories, showSearch, setShowSearch }) => {
     return (
         <>
             {/* Desktop Search */}
-            <form
-                onSubmit={handleSearchSubmit}
-                className="hidden md:block relative w-64"
-            >
+            <form onSubmit={handleSearchSubmit} className="hidden md:block relative w-64">
                 <input
                     type="text"
                     placeholder="Search..."

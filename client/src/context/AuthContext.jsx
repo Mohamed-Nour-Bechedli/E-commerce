@@ -1,10 +1,12 @@
 import { createContext, useState, useEffect } from "react";
 import axiosInstance from "../api/axiosConfig";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -43,6 +45,11 @@ export const AuthContextProvider = ({ children }) => {
             const token = res.data.token;
             localStorage.setItem("token", token);
             await fetchUserProfile();
+            if(res.data.user.role === "admin"){
+                navigate('/admin');
+            } else {
+                navigate('/')
+            }
             return { success: true };
         } catch (error) {
             return {
