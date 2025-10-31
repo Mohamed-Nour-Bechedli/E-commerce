@@ -4,18 +4,17 @@ const User = require('../models/user');
 const authUser = async (req, res, next) => {
     try {
         const authHeader = req.header('Authorization');
-        if (!authHeader) {
-            return res.status(401).json({ message: 'Access Denied, No token provided' });
-        }
+        if (!authHeader) return res.status(401).json({ message: 'No token provided' });
 
         const token = authHeader.replace('Bearer ', '');
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // Fetch the full user from DB
-        const user = await User.findById(decoded._id);
+        // support both id and _id in JWT
+        const userId = decoded.id || decoded._id;
+        const user = await User.findById(userId);
         if (!user) return res.status(401).json({ message: 'User not found' });
 
-        req.user = user; 
+        req.user = user; // req.user.role now exists
         next();
     } catch (error) {
         console.error('authUser error:', error);
