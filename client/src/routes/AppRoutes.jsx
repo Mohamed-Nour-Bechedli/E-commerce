@@ -21,78 +21,134 @@ import CreateProduct from "../pages/admin/CreateProduct";
 import AdminOrders from "../pages/admin/Orders";
 import AdminLayout from "../components/admin/AdminLayout";
 
+const UserLayout = ({ children }) => (
+    <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-1">{children}</main>
+        <Footer />
+    </div>
+);
+
 const AppRoutes = () => {
     return (
         <Routes>
-            {/* User Layout */}
+            {/* USER LAYOUT */}
             <Route
                 path="/"
                 element={
-                    <div className="flex flex-col min-h-screen">
-                        <Navbar />
-                        <main className="flex-1">
-                            <Routes>
-                                {/* Public routes */}
-                                <Route path="/" element={<Home />} />
-                                <Route path="/login" element={<Login />} />
-                                <Route path="/register" element={<Register />} />
-                                <Route path="/category/:categoryName" element={<Category />} />
-                                <Route path="/product/:id" element={<ProductDetails />} />
-
-                                {/* Verification */}
-                                <Route path="/verify-notice" element={<VerifyNotice />} />
-                                <Route path="/verify/:token" element={<VerifyEmail />} />
-
-                                {/* Protected user routes */}
-                                <Route
-                                    path="/orders/:id"
-                                    element={
-                                        <ProtectedRoute>
-                                            <OrderDetails />
-                                        </ProtectedRoute>
-                                    }
-                                />
-                                <Route
-                                    path="/orders"
-                                    element={
-                                        <ProtectedRoute>
-                                            <Orders />
-                                        </ProtectedRoute>
-                                    }
-                                />
-                                <Route
-                                    path="/profile"
-                                    element={
-                                        <ProtectedRoute>
-                                            <Profile />
-                                        </ProtectedRoute>
-                                    }
-                                />
-                                <Route
-                                    path="/cart"
-                                    element={
-                                        <ProtectedRoute>
-                                            <Cart />
-                                        </ProtectedRoute>
-                                    }
-                                />
-                                <Route
-                                    path="/checkout"
-                                    element={
-                                        <ProtectedRoute>
-                                            <Checkout />
-                                        </ProtectedRoute>
-                                    }
-                                />
-                                <Route path="/products" element={<Products />} />
-                            </Routes>
-                        </main>
-                        <Footer />
-                    </div>
+                    <UserLayout>
+                        <Home />
+                    </UserLayout>
+                }
+            />
+            <Route
+                path="/login"
+                element={
+                    <UserLayout>
+                        <Login />
+                    </UserLayout>
+                }
+            />
+            <Route
+                path="/register"
+                element={
+                    <UserLayout>
+                        <Register />
+                    </UserLayout>
+                }
+            />
+            <Route
+                path="/category/:categoryName"
+                element={
+                    <UserLayout>
+                        <Category />
+                    </UserLayout>
+                }
+            />
+            <Route
+                path="/product/:id"
+                element={
+                    <UserLayout>
+                        <ProductDetails />
+                    </UserLayout>
+                }
+            />
+            <Route
+                path="/verify-notice"
+                element={
+                    <UserLayout>
+                        <VerifyNotice />
+                    </UserLayout>
+                }
+            />
+            <Route
+                path="/verify/:token"
+                element={
+                    <UserLayout>
+                        <VerifyEmail />
+                    </UserLayout>
+                }
+            />
+            <Route
+                path="/orders/:id"
+                element={
+                    <ProtectedRoute>
+                        <UserLayout>
+                            <OrderDetails />
+                        </UserLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/orders"
+                element={
+                    <ProtectedRoute>
+                        <UserLayout>
+                            <Orders />
+                        </UserLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/profile"
+                element={
+                    <ProtectedRoute>
+                        <UserLayout>
+                            <Profile />
+                        </UserLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/cart"
+                element={
+                    <ProtectedRoute>
+                        <UserLayout>
+                            <Cart />
+                        </UserLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/checkout"
+                element={
+                    <ProtectedRoute>
+                        <UserLayout>
+                            <Checkout />
+                        </UserLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/products"
+                element={
+                    <UserLayout>
+                        <Products />
+                    </UserLayout>
                 }
             />
 
-            {/* Admin Layout */}
+            {/* ADMIN LAYOUT */}
             <Route
                 path="/admin"
                 element={
