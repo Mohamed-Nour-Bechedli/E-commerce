@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { createProduct, deleteProduct, getAllProducts, getProductById, updateProduct, uploadSingle, getCategoriesWithSub } = require('../controllers/productController');
+const { createProduct, deleteProduct, getAllProducts, getProductById, updateProduct, uploadSingle } = require('../controllers/productController');
 const upload = require('../middlewares/upload');
 
 // Get all products
@@ -10,9 +10,6 @@ router.post('/', upload.single('image') ,createProduct);
 
 // Get product by ID
 router.get('/:id', getProductById);
-
-// Get categories with sub categories
-router.get('/categories', getCategoriesWithSub);
 
 // Update product
 router.put('/:id', upload.single('image'), updateProduct);
