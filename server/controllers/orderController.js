@@ -124,7 +124,7 @@ const updateOrderStatus = async (req, res) => {
         }
 
         order.status = status;
-        const updatedOrder = await Order.save();
+        const updatedOrder = await order.save();
 
         res.status(200).json({ updatedOrder });
 
