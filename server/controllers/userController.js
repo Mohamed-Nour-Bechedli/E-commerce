@@ -109,7 +109,17 @@ const login = async (req, res) => {
             phone: user.phone
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token, message: "Login successful" });
+        res.status(200).json({
+            token,
+            message: "Login successful",
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                image: user.image
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
