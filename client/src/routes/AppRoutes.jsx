@@ -15,6 +15,8 @@ import VerifyEmail from "../pages/VerifyEmail";
 import Profile from "../pages/Profile";
 import Orders from "../pages/Orders";
 import OrderDetails from "../pages/OrderDetails";
+import AdminProtectedRoute from "../components/admin/AdminProtectedRoute";
+import Dashboard from "../pages/admin/Dashboard";
 // import NotFound from "../pages/NotFound";
 
 const AppRoutes = () => {
