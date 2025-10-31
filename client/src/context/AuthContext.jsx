@@ -45,12 +45,9 @@ export const AuthContextProvider = ({ children }) => {
             const token = res.data.token;
             localStorage.setItem("token", token);
             await fetchUserProfile();
-            if(res.data.user.role === "admin"){
-                navigate('/admin');
-            } else {
-                navigate('/')
-            }
-            return { success: true };
+
+            // Return user for role-based navigation
+            return { success: true, user: res.data.user };
         } catch (error) {
             return {
                 success: false,
@@ -58,6 +55,7 @@ export const AuthContextProvider = ({ children }) => {
             };
         }
     };
+
 
     const registerUser = async ({ name, email, password }) => {
         try {
