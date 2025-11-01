@@ -1,131 +1,111 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { ProductContext } from "../../context/ProductContext";
-import axiosInstance from "../../api/axiosConfig";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa"; 
+import "react-toastify/dist/ReactToastify.css";
 
 const Products = () => {
-    const { products, loading } = useContext(ProductContext);
-    const [productList, setProductList] = useState([]);
+    const { products, loading, deleteProduct, updateProduct } =
+        useContext(ProductContext);
+
     const [editingProduct, setEditingProduct] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Sync local list with context products
-    useEffect(() => {
-        setProductList(products);
-    }, [products]);
-
-    // Delete product
+    // Handle Delete
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this product?")) return;
-
-        try {
-            await axiosInstance.delete(`/products/${id}`);
-            setProductList(productList.filter((p) => p._id !== id));
-            toast.success("Product deleted successfully!");
-        } catch (error) {
-            console.error("Delete error:", error);
-            toast.error("Failed to delete product");
-        }
+        const success = await deleteProduct(id);
+        if (success) toast.success("✅ Product deleted successfully!");
+        else toast.error("❌ Failed to delete product");
     };
 
-    // Start editing
+    // Handle Edit click
     const handleEdit = (product) => {
-        setEditingProduct(product);
+        setEditingProduct({ ...product });
+        setIsModalOpen(true);
     };
 
-    // Save updated product
+    // Handle Update Submit
     const handleUpdate = async (e) => {
         e.preventDefault();
-        try {
-            const formData = new FormData();
-            formData.append("name", editingProduct.name);
-            formData.append("price", editingProduct.price);
-            formData.append("stock", editingProduct.stock);
-            formData.append("description", editingProduct.description);
-            formData.append("category", editingProduct.category);
-            if (editingProduct.image instanceof File) {
-                formData.append("image", editingProduct.image);
-            }
+        if (!editingProduct._id) return toast.error("Invalid product.");
 
-            const res = await axiosInstance.put(
-                `/products/${editingProduct._id}`,
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" } }
-            );
+        const updatedData = {
+            name: editingProduct.name,
+            price: editingProduct.price,
+            description: editingProduct.description,
+            category: editingProduct.category,
+            subCategory: editingProduct.subCategory,
+            stock: editingProduct.stock,
+            brand: editingProduct.brand,
+            salePrice: editingProduct.salePrice,
+            isNew: editingProduct.isNew,
+            isFeatured: editingProduct.isFeatured,
+        };
 
-            // Update local state
-            setProductList((prev) =>
-                prev.map((p) => (p._id === editingProduct._id ? res.data : p))
-            );
-
+        const res = await updateProduct(editingProduct._id, updatedData);
+        if (res) {
             toast.success("✅ Product updated successfully!");
+            setIsModalOpen(false);
             setEditingProduct(null);
-        } catch (error) {
-            console.error("Update error:", error);
+        } else {
             toast.error("❌ Failed to update product");
         }
     };
 
-    if (loading) return <p className="text-center py-8">Loading products...</p>;
+    if (loading) return <p className="text-center mt-10">Loading products...</p>;
 
     return (
         <div className="p-6">
-            <h2 className="text-2xl font-semibold mb-4">Manage Products</h2>
+            <h2 className="text-2xl font-semibold mb-6">🛍️ All Products</h2>
 
-            {/* Products Table */}
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
-                    <thead>
-                        <tr className="bg-gray-100 text-left">
-                            <th className="py-2 px-4">Image</th>
-                            <th className="py-2 px-4">Name</th>
-                            <th className="py-2 px-4">Price</th>
-                            <th className="py-2 px-4">Stock</th>
-                            <th className="py-2 px-4 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {productList.map((p) => (
-                            <tr key={p._id} className="border-t hover:bg-gray-50">
-                                <td className="py-2 px-4">
-                                    <img
-                                        src={p.image}
-                                        alt={p.name}
-                                        className="w-14 h-14 object-cover rounded"
-                                    />
-                                </td>
-                                <td className="py-2 px-4">{p.name}</td>
-                                <td className="py-2 px-4">${p.price}</td>
-                                <td className="py-2 px-4">{p.stock}</td>
-                                <td className="py-2 px-4 flex justify-center gap-4">
-                                    <button
-                                        className="text-blue-600 hover:text-blue-800"
-                                        onClick={() => handleEdit(p)}
-                                        title="Edit"
-                                    >
-                                        <FaEdit />
-                                    </button>
-                                    <button
-                                        className="text-red-600 hover:text-red-800"
-                                        onClick={() => handleDelete(p._id)}
-                                        title="Delete"
-                                    >
-                                        <FaTrash />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.length > 0 ? (
+                    products.map((product) => (
+                        <div
+                            key={product._id}
+                            className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center relative"
+                        >
+                            <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-40 h-40 object-cover rounded-md"
+                            />
+                            <h3 className="text-lg font-medium mt-2">{product.name}</h3>
+                            <p className="text-gray-600 text-sm">{product.category}</p>
+                            <p className="text-blue-600 font-semibold mt-1">
+                                ${product.price}
+                            </p>
+
+                            {/* Icon buttons */}
+                            <div className="flex gap-4 mt-4">
+                                <button
+                                    onClick={() => handleEdit(product)}
+                                    className="text-yellow-500 hover:text-yellow-600 transition transform hover:scale-110"
+                                    title="Edit"
+                                >
+                                    <FaEdit size={20} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(product._id)}
+                                    className="text-red-500 hover:text-red-600 transition transform hover:scale-110"
+                                    title="Delete"
+                                >
+                                    <FaTrash size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p>No products found.</p>
+                )}
             </div>
 
-            {/* Edit Modal */}
-            {editingProduct && (
-                <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h3 className="text-xl font-semibold mb-4 text-center">
-                            Edit Product
-                        </h3>
+            {/* Edit Product Modal */}
+            {isModalOpen && editingProduct && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg relative">
+                        <h3 className="text-xl font-semibold mb-4">Edit Product</h3>
                         <form onSubmit={handleUpdate} className="flex flex-col gap-3">
                             <input
                                 type="text"
@@ -140,18 +120,12 @@ const Products = () => {
                                 type="number"
                                 value={editingProduct.price}
                                 onChange={(e) =>
-                                    setEditingProduct({ ...editingProduct, price: e.target.value })
+                                    setEditingProduct({
+                                        ...editingProduct,
+                                        price: e.target.value,
+                                    })
                                 }
                                 placeholder="Price"
-                                className="border p-2 rounded"
-                            />
-                            <input
-                                type="number"
-                                value={editingProduct.stock}
-                                onChange={(e) =>
-                                    setEditingProduct({ ...editingProduct, stock: e.target.value })
-                                }
-                                placeholder="Stock"
                                 className="border p-2 rounded"
                             />
                             <textarea
@@ -165,31 +139,45 @@ const Products = () => {
                                 placeholder="Description"
                                 className="border p-2 rounded"
                             />
+
                             <input
-                                type="file"
-                                accept="image/*"
+                                type="text"
+                                value={editingProduct.category}
                                 onChange={(e) =>
                                     setEditingProduct({
                                         ...editingProduct,
-                                        image: e.target.files[0],
+                                        category: e.target.value,
                                     })
                                 }
+                                placeholder="Category"
+                                className="border p-2 rounded"
+                            />
+                            <input
+                                type="number"
+                                value={editingProduct.stock}
+                                onChange={(e) =>
+                                    setEditingProduct({
+                                        ...editingProduct,
+                                        stock: e.target.value,
+                                    })
+                                }
+                                placeholder="Stock"
                                 className="border p-2 rounded"
                             />
 
-                            <div className="flex justify-end gap-3 mt-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setEditingProduct(null)}
-                                    className="px-4 py-2 bg-gray-300 rounded"
-                                >
-                                    Cancel
-                                </button>
+                            <div className="flex justify-between mt-3">
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                                 >
                                     Save
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+                                >
+                                    Cancel
                                 </button>
                             </div>
                         </form>
