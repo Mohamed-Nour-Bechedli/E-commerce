@@ -14,6 +14,7 @@ const Checkout = () => {
         address: "",
         city: "",
         zip: "",
+        phone: "", // <-- new
     });
 
     const [errors, setErrors] = useState({});
@@ -21,7 +22,6 @@ const Checkout = () => {
     const [apiError, setApiError] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
-    // Protected route
     if (!user) return <Navigate to="/login" replace />;
 
     if (cartItems.length === 0)
@@ -43,6 +43,7 @@ const Checkout = () => {
         if (!form.address.trim()) newErrors.address = "Address is required";
         if (!form.city.trim()) newErrors.city = "City is required";
         if (!form.zip.trim()) newErrors.zip = "ZIP code is required";
+        if (!form.phone.trim()) newErrors.phone = "Phone number is required"; // <-- new
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -55,9 +56,8 @@ const Checkout = () => {
         setApiError("");
 
         try {
-            // Prepare products array for backend
             const products = cartItems.map((item) => ({
-                productId: item._id, 
+                productId: item._id,
                 name: item.name,
                 price: item.price,
                 quantity: item.quantity,
@@ -67,6 +67,7 @@ const Checkout = () => {
             const payload = {
                 products,
                 totalAmount: total,
+                phone: form.phone, // <-- include phone
             };
 
             const res = await axiosInstance.post("/orders", payload, {
@@ -170,6 +171,16 @@ const Checkout = () => {
                                 className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.zip && <p className="text-red-600 text-sm">{errors.zip}</p>}
+
+                            <input
+                                type="text"
+                                name="phone"
+                                value={form.phone}
+                                onChange={handleChange}
+                                placeholder="Phone Number"
+                                className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.phone && <p className="text-red-600 text-sm">{errors.phone}</p>}
                         </div>
                     </div>
 
