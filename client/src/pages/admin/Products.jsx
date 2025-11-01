@@ -1,15 +1,28 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { ProductContext } from "../../context/ProductContext";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrash } from "react-icons/fa"; 
+import { FaEdit, FaTrash } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
 const Products = () => {
-    const { products, loading, deleteProduct, updateProduct } =
-        useContext(ProductContext);
+    const { products, loading, deleteProduct, updateProduct } = useContext(ProductContext);
 
     const [editingProduct, setEditingProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState(""); // search state
+    const [filteredProducts, setFilteredProducts] = useState([]);
+
+    // Filter products whenever products or searchQuery change
+    useEffect(() => {
+        const query = searchQuery.toLowerCase();
+        const filtered = products.filter(product =>
+            product.name.toLowerCase().includes(query) ||
+            product.category.toLowerCase().includes(query) ||
+            (product.subCategory && product.subCategory.toLowerCase().includes(query)) ||
+            product._id.toLowerCase().includes(query)
+        );
+        setFilteredProducts(filtered);
+    }, [searchQuery, products]);
 
     // Handle Delete
     const handleDelete = async (id) => {
@@ -57,11 +70,22 @@ const Products = () => {
 
     return (
         <div className="p-6">
-            <h2 className="text-2xl font-semibold mb-6">🛍️ All Products</h2>
+            <h2 className="text-2xl font-semibold mb-4">🛍️ All Products</h2>
+
+            {/* Search Bar */}
+            <div className="mb-6">
+                <input
+                    type="text"
+                    placeholder="Search by name, category, subcategory, or product ID..."
+                    className="w-full border rounded p-2"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.length > 0 ? (
-                    products.map((product) => (
+                {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
                         <div
                             key={product._id}
                             className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center relative"
@@ -73,9 +97,8 @@ const Products = () => {
                             />
                             <h3 className="text-lg font-medium mt-2">{product.name}</h3>
                             <p className="text-gray-600 text-sm">{product.category}</p>
-                            <p className="text-blue-600 font-semibold mt-1">
-                                ${product.price}
-                            </p>
+                            {product.subCategory && <p className="text-gray-500 text-sm">{product.subCategory}</p>}
+                            <p className="text-blue-600 font-semibold mt-1">${product.price}</p>
 
                             {/* Icon buttons */}
                             <div className="flex gap-4 mt-4">
@@ -120,10 +143,7 @@ const Products = () => {
                                 type="number"
                                 value={editingProduct.price}
                                 onChange={(e) =>
-                                    setEditingProduct({
-                                        ...editingProduct,
-                                        price: e.target.value,
-                                    })
+                                    setEditingProduct({ ...editingProduct, price: e.target.value })
                                 }
                                 placeholder="Price"
                                 className="border p-2 rounded"
@@ -131,35 +151,34 @@ const Products = () => {
                             <textarea
                                 value={editingProduct.description}
                                 onChange={(e) =>
-                                    setEditingProduct({
-                                        ...editingProduct,
-                                        description: e.target.value,
-                                    })
+                                    setEditingProduct({ ...editingProduct, description: e.target.value })
                                 }
                                 placeholder="Description"
                                 className="border p-2 rounded"
                             />
-
                             <input
                                 type="text"
                                 value={editingProduct.category}
                                 onChange={(e) =>
-                                    setEditingProduct({
-                                        ...editingProduct,
-                                        category: e.target.value,
-                                    })
+                                    setEditingProduct({ ...editingProduct, category: e.target.value })
                                 }
                                 placeholder="Category"
+                                className="border p-2 rounded"
+                            />
+                            <input
+                                type="text"
+                                value={editingProduct.subCategory}
+                                onChange={(e) =>
+                                    setEditingProduct({ ...editingProduct, subCategory: e.target.value })
+                                }
+                                placeholder="Subcategory"
                                 className="border p-2 rounded"
                             />
                             <input
                                 type="number"
                                 value={editingProduct.stock}
                                 onChange={(e) =>
-                                    setEditingProduct({
-                                        ...editingProduct,
-                                        stock: e.target.value,
-                                    })
+                                    setEditingProduct({ ...editingProduct, stock: e.target.value })
                                 }
                                 placeholder="Stock"
                                 className="border p-2 rounded"
