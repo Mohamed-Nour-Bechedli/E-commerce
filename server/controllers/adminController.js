@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Product = require("../models/product");
 const Order = require("../models/order");
+const mongoose = require("mongoose");
 
 // Admin dashboard stats
 const getDashboardStats = async (req, res) => {
@@ -15,14 +16,13 @@ const getDashboardStats = async (req, res) => {
       { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
 
-    // Get 5 most recent orders
+    // Recent orders
     const recentOrders = await Order.find()
       .sort({ createdAt: -1 })
       .limit(5)
-      .populate("user", "name email") 
+      .populate("user", "name email")
       .select("totalAmount status createdAt");
 
-    // Format recent orders
     const formattedRecentOrders = recentOrders.map((order) => ({
       _id: order._id,
       customerName: order.user?.name || "Unknown User",
@@ -31,13 +31,76 @@ const getDashboardStats = async (req, res) => {
       createdAt: order.createdAt,
     }));
 
-    // Return everything
+    // Revenue only from delivered orders
+    const deliveredOrders = await Order.find({ status: "Delivered" });
+
+    const totalRevenue = deliveredOrders.reduce(
+      (sum, order) => sum + order.totalAmount,
+      0
+    );
+
+    // Last 30 days revenue
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(today.getDate() - 60);
+
+    const last30DaysOrders = deliveredOrders.filter(
+      (o) => o.createdAt >= thirtyDaysAgo
+    );
+    const prev30DaysOrders = deliveredOrders.filter(
+      (o) => o.createdAt >= sixtyDaysAgo && o.createdAt < thirtyDaysAgo
+    );
+
+    const current30DaysRevenue = last30DaysOrders.reduce(
+      (sum, o) => sum + o.totalAmount,
+      0
+    );
+    const previous30DaysRevenue = prev30DaysOrders.reduce(
+      (sum, o) => sum + o.totalAmount,
+      0
+    );
+
+    // Yearly revenue
+    const yearlyRevenue = await Order.aggregate([
+      { $match: { status: "Delivered" } },
+      {
+        $group: {
+          _id: { year: { $year: "$createdAt" } },
+          total: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { "_id.year": 1 } },
+    ]);
+
+    // Monthly revenue (last 12 months)
+    const firstMonth = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    const monthlyRevenue = await Order.aggregate([
+      { $match: { status: "Delivered", createdAt: { $gte: firstMonth } } },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          total: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+
     res.status(200).json({
       totalUsers,
       totalProducts,
       totalOrders,
       statusStats,
       recentOrders: formattedRecentOrders,
+      totalRevenue,
+      current30DaysRevenue,
+      previous30DaysRevenue,
+      yearlyRevenue,
+      monthlyRevenue,
     });
   } catch (error) {
     console.error("Dashboard stats error:", error);
