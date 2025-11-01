@@ -5,8 +5,8 @@ import Loader from "../components/common/Loader";
 import ProductCard from "../components/products/ProductCard";
 
 const Category = () => {
-    const { categoryName } = useParams(); // Extract the category name from the URL params
-    const location = useLocation(); // This will give access to the query string
+    const { categoryName } = useParams(); 
+    const location = useLocation(); 
     const { products, loading } = useContext(ProductContext);
 
     // Extract the subcategory filter from the URL query string
