@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import axiosInstance from "../../api/axiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,6 +20,23 @@ const CreateProduct = () => {
     });
 
     const navigate = useNavigate();
+    const fileInputRef = useRef(null); 
+
+    // Hardcoded categories & subcategories
+    const categories = [
+        {
+            name: "PC Gamers",
+            subCategories: ["Gaming Laptop", "Custom PC Build", "Monitors"],
+        },
+        {
+            name: "Smartphones",
+            subCategories: ["iPhone", "Android", "Other"],
+        },
+        {
+            name: "Accessories",
+            subCategories: ["Keyboard", "Mouse", "Headphones"],
+        },
+    ];
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
@@ -32,18 +49,22 @@ const CreateProduct = () => {
                         ? files[0]
                         : value,
         }));
+
+        // Reset subCategory if category changes
+        if (name === "category") {
+            setFormData((prev) => ({ ...prev, subCategory: "" }));
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
             const data = new FormData();
             for (const key in formData) {
                 data.append(key, formData[key]);
             }
 
-            const res = await axiosInstance.post("/products", data, {
+            await axiosInstance.post("/products", data, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
@@ -53,6 +74,15 @@ const CreateProduct = () => {
             console.error(error);
             toast.error("Failed to create product");
         }
+    };
+
+    // Get subcategories based on selected category
+    const subCategories =
+        categories.find((c) => c.name === formData.category)?.subCategories || [];
+
+    // Open file selector
+    const handleFileButtonClick = () => {
+        fileInputRef.current.click();
     };
 
     return (
@@ -113,20 +143,29 @@ const CreateProduct = () => {
                     required
                 >
                     <option value="">Select Category</option>
-                    <option value="PC Gamers">PC Gamers</option>
-                    <option value="Smartphones">Smartphones</option>
-                    <option value="Accessories">Accessories</option>
+                    {categories.map((cat) => (
+                        <option key={cat.name} value={cat.name}>
+                            {cat.name}
+                        </option>
+                    ))}
                 </select>
 
-                {/* Sub Category */}
-                <input
-                    type="text"
-                    name="subCategory"
-                    placeholder="Sub Category (optional)"
-                    value={formData.subCategory}
-                    onChange={handleChange}
-                    className="w-full border rounded p-2"
-                />
+                {/* Sub Category Dropdown */}
+                {subCategories.length > 0 && (
+                    <select
+                        name="subCategory"
+                        value={formData.subCategory}
+                        onChange={handleChange}
+                        className="w-full border rounded p-2"
+                    >
+                        <option value="">Select Subcategory (optional)</option>
+                        {subCategories.map((sub) => (
+                            <option key={sub} value={sub}>
+                                {sub}
+                            </option>
+                        ))}
+                    </select>
+                )}
 
                 {/* Stock & Brand */}
                 <div className="grid grid-cols-2 gap-4">
@@ -172,14 +211,24 @@ const CreateProduct = () => {
                 </div>
 
                 {/* Image Upload */}
-                <div>
-                    <label className="block mb-1 font-medium">Upload Image</label>
+                <div className="flex items-center gap-4">
+                    <button
+                        type="button"
+                        onClick={handleFileButtonClick}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+                    >
+                        Choose Image
+                    </button>
+                    <span className="text-gray-700">
+                        {formData.image ? formData.image.name : "No file selected"}
+                    </span>
                     <input
                         type="file"
                         name="image"
                         accept="image/*"
+                        ref={fileInputRef}
                         onChange={handleChange}
-                        className="w-full"
+                        className="hidden"
                         required
                     />
                 </div>
