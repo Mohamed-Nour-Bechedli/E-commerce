@@ -1,13 +1,19 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import { FaHome, FaBoxOpen, FaListAlt, FaSignOutAlt } from "react-icons/fa";
+import {
+    FaHome,
+    FaBoxOpen,
+    FaListAlt,
+    FaSignOutAlt,
+    FaBoxes
+} from "react-icons/fa";
 
 const AdminLayout = () => {
     const { logout, user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Security fallback — just in case
+    // Security fallback — prevent unauthorized access
     if (!user || user.role !== "admin") {
         navigate("/");
         return null;
@@ -33,7 +39,8 @@ const AdminLayout = () => {
                         className={({ isActive }) =>
                             `flex items-center gap-3 p-2 rounded-md ${isActive
                                 ? "bg-blue-500 text-white"
-                                : "text-gray-700 hover:bg-gray-200"}`
+                                : "text-gray-700 hover:bg-gray-200"
+                            }`
                         }
                     >
                         <FaHome /> Dashboard
@@ -44,10 +51,24 @@ const AdminLayout = () => {
                         className={({ isActive }) =>
                             `flex items-center gap-3 p-2 rounded-md ${isActive
                                 ? "bg-blue-500 text-white"
-                                : "text-gray-700 hover:bg-gray-200"}`
+                                : "text-gray-700 hover:bg-gray-200"
+                            }`
                         }
                     >
                         <FaBoxOpen /> Create Product
+                    </NavLink>
+
+                    {/* New Manage Products Link */}
+                    <NavLink
+                        to="/admin/manage-products"
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 p-2 rounded-md ${isActive
+                                ? "bg-blue-500 text-white"
+                                : "text-gray-700 hover:bg-gray-200"
+                            }`
+                        }
+                    >
+                        <FaBoxes /> Manage Products
                     </NavLink>
 
                     <NavLink
@@ -55,7 +76,8 @@ const AdminLayout = () => {
                         className={({ isActive }) =>
                             `flex items-center gap-3 p-2 rounded-md ${isActive
                                 ? "bg-blue-500 text-white"
-                                : "text-gray-700 hover:bg-gray-200"}`
+                                : "text-gray-700 hover:bg-gray-200"
+                            }`
                         }
                     >
                         <FaListAlt /> Orders
@@ -72,7 +94,7 @@ const AdminLayout = () => {
                 </div>
             </aside>
 
-            {/* Content */}
+            {/* Main Content */}
             <main className="flex-1 p-8 overflow-y-auto">
                 <Outlet />
             </main>
