@@ -3,10 +3,14 @@ const Order = require('../models/order');
 // Create a new order
 const createOrder = async (req, res) => {
     try {
-        const { products, totalAmount } = req.body;
+        const { products, totalAmount, phone } = req.body; 
 
         if (!products || products.length === 0) {
             return res.status(400).json({ message: "No products in the order." });
+        }
+
+        if (!phone || phone.trim() === "") {
+            return res.status(400).json({ message: "Phone number is required." });
         }
 
         if (!req.user?._id) {
@@ -24,7 +28,8 @@ const createOrder = async (req, res) => {
         const newOrder = new Order({
             user: req.user._id,
             products: formattedProducts,
-            totalAmount
+            totalAmount,
+            phone, 
         });
 
         const savedOrder = await newOrder.save();
@@ -39,6 +44,7 @@ const createOrder = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
 
 // Get orders for a user
 const getUserOrders = async (req, res) => {
