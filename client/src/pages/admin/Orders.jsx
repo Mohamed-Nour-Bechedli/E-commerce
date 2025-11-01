@@ -10,6 +10,11 @@ const Orders = () => {
     const [error, setError] = useState("");
     const [updating, setUpdating] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedOrder, setSelectedOrder] = useState(null);
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const ordersPerPage = 12;
 
     // Fetch all orders
     useEffect(() => {
@@ -33,17 +38,20 @@ const Orders = () => {
         fetchOrders();
     }, [user]);
 
-    // Handle search by order ID
+    // Handle search by order ID or customer name
     useEffect(() => {
         if (!searchTerm) {
             setFilteredOrders(orders);
         } else {
             setFilteredOrders(
-                orders.filter((o) =>
-                    o._id.toLowerCase().includes(searchTerm.toLowerCase())
+                orders.filter(
+                    (o) =>
+                        o._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        o.user?.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )
             );
         }
+        setCurrentPage(1); // Reset to first page on search
     }, [searchTerm, orders]);
 
     // Update order status
@@ -74,6 +82,15 @@ const Orders = () => {
         }
     };
 
+    // Pagination helpers
+    const indexOfLastOrder = currentPage * ordersPerPage;
+    const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+    const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+    const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+
+    const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+    const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+
     if (loading)
         return (
             <div className="flex justify-center items-center h-64">
@@ -103,7 +120,7 @@ const Orders = () => {
             <div className="mb-4 flex justify-center">
                 <input
                     type="text"
-                    placeholder="Search by Order ID"
+                    placeholder="Search by Order ID or Customer Name"
                     className="border rounded px-3 py-2 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -116,6 +133,7 @@ const Orders = () => {
                         <tr>
                             <th className="p-3">Order ID</th>
                             <th className="p-3">Customer</th>
+                            <th className="p-3">Phone</th>
                             <th className="p-3">Products</th>
                             <th className="p-3">Total</th>
                             <th className="p-3">Status</th>
@@ -123,16 +141,19 @@ const Orders = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredOrders.length > 0 ? (
-                            filteredOrders.map((order) => (
-                                <tr key={order._id} className="border-b hover:bg-gray-50">
+                        {currentOrders.length > 0 ? (
+                            currentOrders.map((order) => (
+                                <tr
+                                    key={order._id}
+                                    className="border-b hover:bg-gray-50 cursor-pointer"
+                                    onClick={() => setSelectedOrder(order)}
+                                >
                                     <td className="p-3">{order._id.slice(-6)}</td>
                                     <td className="p-3">
                                         {order.user?.name} <br />
-                                        <span className="text-gray-500 text-xs">
-                                            {order.user?.email}
-                                        </span>
+                                        <span className="text-gray-500 text-xs">{order.user?.email}</span>
                                     </td>
+                                    <td className="p-3">{order.phone}</td>
                                     <td className="p-3">
                                         {order.products.map((p, index) => (
                                             <div key={index} className="text-sm">
@@ -162,6 +183,7 @@ const Orders = () => {
                                             className="border rounded px-2 py-1 text-sm"
                                             value={order.status}
                                             onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                                            onClick={(e) => e.stopPropagation()}
                                             disabled={updating === order._id}
                                         >
                                             <option>Pending</option>
@@ -175,7 +197,7 @@ const Orders = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={6} className="p-4 text-center text-gray-500">
+                                <td colSpan={7} className="p-4 text-center text-gray-500">
                                     No orders match your search.
                                 </td>
                             </tr>
@@ -183,6 +205,63 @@ const Orders = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination controls */}
+            {filteredOrders.length > ordersPerPage && (
+                <div className="flex justify-center mt-4 space-x-4">
+                    <button
+                        onClick={handlePrevPage}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        Previous
+                    </button>
+                    <span className="px-2 py-2">{currentPage} / {totalPages}</span>
+                    <button
+                        onClick={handleNextPage}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
+
+            {/* Order Details Modal */}
+            {selectedOrder && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-2xl p-6 relative">
+                        <button
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                            onClick={() => setSelectedOrder(null)}
+                        >
+                            ✕
+                        </button>
+                        <h2 className="text-xl font-bold mb-4">Order Details</h2>
+                        <p>
+                            <strong>Order ID:</strong> {selectedOrder._id}
+                        </p>
+                        <p>
+                            <strong>Customer:</strong> {selectedOrder.user?.name} ({selectedOrder.user?.email})
+                        </p>
+                        <p>
+                            <strong>Phone:</strong> {selectedOrder.phone}
+                        </p>
+                        <p className="mt-2 font-semibold">Products:</p>
+                        <ul className="list-disc ml-5">
+                            {selectedOrder.products.map((p, i) => (
+                                <li key={i}>
+                                    {p.name} × {p.quantity} (${(p.price * p.quantity).toFixed(2)})
+                                </li>
+                            ))}
+                        </ul>
+                        <p className="mt-2 font-bold">Total: ${selectedOrder.totalAmount.toFixed(2)}</p>
+                        <p>
+                            <strong>Status:</strong> {selectedOrder.status}
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
