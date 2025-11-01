@@ -20,6 +20,7 @@ import Dashboard from "../pages/admin/Dashboard";
 import CreateProduct from "../pages/admin/CreateProduct";
 import AdminOrders from "../pages/admin/Orders";
 import AdminLayout from "../components/admin/AdminLayout";
+import AdminProducts from "../pages/admin/Products";
 
 const UserLayout = ({ children }) => (
     <div className="flex flex-col min-h-screen">
@@ -160,6 +161,7 @@ const AppRoutes = () => {
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<CreateProduct />} />
                 <Route path="orders" element={<AdminOrders />} />
+                <Route path="manage-products" element={<AdminProducts />} />
             </Route>
         </Routes>
     );
