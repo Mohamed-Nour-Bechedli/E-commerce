@@ -119,7 +119,6 @@ const getAllOrders = async (req, res) => {
     }
 };
 
-// Update order status (admin)
 const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
@@ -133,15 +132,12 @@ const updateOrderStatus = async (req, res) => {
         const order = await Order.findById(id);
         if (!order) return res.status(404).json({ message: "Order not found." });
 
-        // Prevent double stock deduction
-        const wasDelivered = order.status === "Delivered";
-
-        // Update order status
+        const previousStatus = order.status;
         order.status = status;
         const updatedOrder = await order.save();
 
         // If order is newly delivered, decrease product stock
-        if (status === "Delivered" && !wasDelivered) {
+        if (status === "Delivered" && previousStatus !== "Delivered") {
             for (const item of order.products) {
                 const product = await Product.findById(item.productId);
                 if (product) {
@@ -151,9 +147,20 @@ const updateOrderStatus = async (req, res) => {
             }
         }
 
+        // If delivered order is cancelled, restore product stock
+        if (status === "Cancelled" && previousStatus === "Delivered") {
+            for (const item of order.products) {
+                const product = await Product.findById(item.productId);
+                if (product) {
+                    product.stock += item.quantity;
+                    await product.save();
+                }
+            }
+        }
+
         res.status(200).json({
-            message: `Order marked as ${status}`,
-            updatedOrder,
+            message: `Order status updated to ${status}`,
+            updatedOrder
         });
 
     } catch (error) {
@@ -161,6 +168,7 @@ const updateOrderStatus = async (req, res) => {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
 
 module.exports = {
     createOrder,
