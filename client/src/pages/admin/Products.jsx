@@ -11,7 +11,7 @@ const Products = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredProducts, setFilteredProducts] = useState([]);
-    const [selectedImage, setSelectedImage] = useState(null); 
+    const [selectedImage, setSelectedImage] = useState(null);
 
     // Filter products by search
     useEffect(() => {
@@ -47,7 +47,7 @@ const Products = () => {
             setSelectedImage(file);
             setEditingProduct((prev) => ({
                 ...prev,
-                image: URL.createObjectURL(file), 
+                image: URL.createObjectURL(file),
             }));
         }
     };
@@ -73,7 +73,7 @@ const Products = () => {
             formData.append("image", selectedImage);
         }
 
-        const res = await updateProduct(editingProduct._id, formData, true); 
+        const res = await updateProduct(editingProduct._id, formData, true);
         if (res) {
             toast.success("Product updated successfully!");
             setIsModalOpen(false);
@@ -101,6 +101,7 @@ const Products = () => {
                 />
             </div>
 
+            {/* Products Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
@@ -108,6 +109,18 @@ const Products = () => {
                             key={product._id}
                             className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center relative"
                         >
+                            {/* Sale / Featured badges */}
+                            {product.isFeatured && (
+                                <span className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                                    Featured
+                                </span>
+                            )}
+                            {product.salePrice && (
+                                <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                                    Sale
+                                </span>
+                            )}
+
                             <img
                                 src={product.image}
                                 alt={product.name}
@@ -118,7 +131,16 @@ const Products = () => {
                             {product.subCategory && (
                                 <p className="text-gray-500 text-sm">{product.subCategory}</p>
                             )}
-                            <p className="text-blue-600 font-semibold mt-1">${product.price}</p>
+                            <p className="text-blue-600 font-semibold mt-1">
+                                {product.salePrice ? (
+                                    <>
+                                        <span className="text-red-500 mr-2">${product.salePrice}</span>
+                                        <span className="line-through text-gray-400">${product.price}</span>
+                                    </>
+                                ) : (
+                                    `$${product.price}`
+                                )}
+                            </p>
 
                             <div className="flex gap-4 mt-4">
                                 <button
@@ -158,6 +180,7 @@ const Products = () => {
                                 placeholder="Product Name"
                                 className="border p-2 rounded"
                             />
+
                             <input
                                 type="number"
                                 value={editingProduct.price}
@@ -167,41 +190,121 @@ const Products = () => {
                                 placeholder="Price"
                                 className="border p-2 rounded"
                             />
+
+                            {/* On Sale toggle */}
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={editingProduct.salePrice !== null}
+                                    onChange={(e) =>
+                                        setEditingProduct({
+                                            ...editingProduct,
+                                            salePrice: e.target.checked
+                                                ? editingProduct.salePrice || 0
+                                                : null,
+                                        })
+                                    }
+                                />
+                                <label>On Sale</label>
+                            </div>
+
+                            {/* Show sale price only when on sale */}
+                            {editingProduct.salePrice !== null && (
+                                <input
+                                    type="number"
+                                    value={editingProduct.salePrice}
+                                    onChange={(e) =>
+                                        setEditingProduct({
+                                            ...editingProduct,
+                                            salePrice: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Sale Price"
+                                    className="border p-2 rounded"
+                                />
+                            )}
+
                             <textarea
                                 value={editingProduct.description}
                                 onChange={(e) =>
-                                    setEditingProduct({ ...editingProduct, description: e.target.value })
+                                    setEditingProduct({
+                                        ...editingProduct,
+                                        description: e.target.value,
+                                    })
                                 }
                                 placeholder="Description"
                                 className="border p-2 rounded"
                             />
+
                             <input
                                 type="text"
                                 value={editingProduct.category}
                                 onChange={(e) =>
-                                    setEditingProduct({ ...editingProduct, category: e.target.value })
+                                    setEditingProduct({
+                                        ...editingProduct,
+                                        category: e.target.value,
+                                    })
                                 }
                                 placeholder="Category"
                                 className="border p-2 rounded"
                             />
+
                             <input
                                 type="text"
                                 value={editingProduct.subCategory}
                                 onChange={(e) =>
-                                    setEditingProduct({ ...editingProduct, subCategory: e.target.value })
+                                    setEditingProduct({
+                                        ...editingProduct,
+                                        subCategory: e.target.value,
+                                    })
                                 }
                                 placeholder="Subcategory"
                                 className="border p-2 rounded"
                             />
+
                             <input
                                 type="number"
                                 value={editingProduct.stock}
                                 onChange={(e) =>
-                                    setEditingProduct({ ...editingProduct, stock: e.target.value })
+                                    setEditingProduct({
+                                        ...editingProduct,
+                                        stock: e.target.value,
+                                    })
                                 }
                                 placeholder="Stock"
                                 className="border p-2 rounded"
                             />
+
+                            {/* Boolean toggles */}
+                            <div className="flex items-center gap-3">
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={editingProduct.isNew}
+                                        onChange={(e) =>
+                                            setEditingProduct({
+                                                ...editingProduct,
+                                                isNew: e.target.checked,
+                                            })
+                                        }
+                                    />
+                                    <span>Mark as New</span>
+                                </label>
+
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={editingProduct.isFeatured}
+                                        onChange={(e) =>
+                                            setEditingProduct({
+                                                ...editingProduct,
+                                                isFeatured: e.target.checked,
+                                            })
+                                        }
+                                    />
+                                    <span>Featured</span>
+                                </label>
+                            </div>
 
                             {/* Image Upload */}
                             <div className="flex items-center gap-3">
