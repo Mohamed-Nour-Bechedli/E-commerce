@@ -15,14 +15,14 @@ const ProductTabs = () => {
 
     const scrollLeft = () => {
         if (sliderRef.current) {
-            const cardWidth = sliderRef.current.firstChild.offsetWidth + 24; // card + gap
+            const cardWidth = sliderRef.current.firstChild.offsetWidth + 24; 
             sliderRef.current.scrollBy({ left: -cardWidth, behavior: "smooth" });
         }
     };
 
     const scrollRight = () => {
         if (sliderRef.current) {
-            const cardWidth = sliderRef.current.firstChild.offsetWidth + 24; // card + gap
+            const cardWidth = sliderRef.current.firstChild.offsetWidth + 24; 
             sliderRef.current.scrollBy({ left: cardWidth, behavior: "smooth" });
         }
     };
