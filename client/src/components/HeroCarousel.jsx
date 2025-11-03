@@ -1,83 +1,67 @@
 import { useState, useEffect, useContext } from "react";
-import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
 
 const HeroCarousel = () => {
     const { products, loading } = useContext(ProductContext);
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [featuredProducts, setFeaturedProducts] = useState([]);
     const navigate = useNavigate();
 
-    // Filter featured products
-    useEffect(() => {
-        if (!loading) {
-            const featured = products.filter((p) => p.isFeatured);
-            setFeaturedProducts(featured);
-        }
-    }, [products, loading]);
+    const featuredProducts = products.filter((p) => p.isFeatured);
 
-    // Autoplay every 3 seconds
+    // Autoplay
     useEffect(() => {
         if (featuredProducts.length === 0) return;
-
         const interval = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
-        }, 3000);
-
+        }, 4000);
         return () => clearInterval(interval);
     }, [featuredProducts]);
 
-    const prevSlide = () => {
-        setCurrentSlide((prev) =>
-            prev === 0 ? featuredProducts.length - 1 : prev - 1
-        );
-    };
-
-    const nextSlide = () => {
-        setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
-    };
-
-    if (loading || featuredProducts.length === 0) {
+    if (loading)
         return (
-            <div className="flex items-center justify-center h-[80vh]">
+            <div className="flex items-center justify-center h-[70vh]">
                 <p>Loading featured products...</p>
             </div>
         );
-    }
 
-    console.log("featured product:", featuredProducts);
+    if (featuredProducts.length === 0)
+        return (
+            <div className="flex items-center justify-center h-[70vh]">
+                <p>No featured products available.</p>
+            </div>
+        );
 
     return (
-        <div className="relative w-full h-[80vh] min-h-[400px] overflow-hidden bg-gray-200">
+        <div className="relative w-full h-[75vh] bg-gray-100 overflow-hidden rounded-2xl shadow-lg">
             {featuredProducts.map((product, idx) => (
                 <div
                     key={product._id}
-                    className="absolute top-0 left-0 w-full h-full transition-opacity duration-700"
-                    style={{
-                        opacity: idx === currentSlide ? 1 : 0,
-                        zIndex: idx === currentSlide ? 10 : 0,
-                    }}
+                    className={`absolute inset-0 flex transition-opacity duration-700 ease-in-out ${idx === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+                        }`}
                 >
-                    <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover min-h-[400px]"
-                    />
+                    {/* Left side: Product image */}
+                    <div className="w-1/2 h-full">
+                        <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
 
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center text-white px-4 pointer-events-none">
-                        <h1 className="text-4xl sm:text-6xl font-extrabold mb-4">
-                            {product.name}
-                        </h1>
-                        <p className="text-lg sm:text-xl mb-4">{product.description}</p>
-                        <div className="mb-6 text-2xl sm:text-3xl font-bold">
+                    {/* Right side: Text info */}
+                    <div className="w-1/2 flex flex-col justify-center px-10 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white">
+                        <h1 className="text-5xl font-extrabold mb-4">{product.name}</h1>
+                        <p className="text-lg mb-6 text-gray-200">{product.description}</p>
+
+                        <div className="text-3xl font-semibold mb-6">
                             {product.salePrice ? (
                                 <>
-                                    <span className="text-red-500 mr-2">
+                                    <span className="text-red-400 mr-2">
                                         ${product.salePrice.toFixed(2)}
                                     </span>
-                                    <span className="line-through text-gray-300">
+                                    <span className="line-through text-gray-400">
                                         ${product.price.toFixed(2)}
                                     </span>
                                 </>
@@ -85,32 +69,39 @@ const HeroCarousel = () => {
                                 <span>${product.price.toFixed(2)}</span>
                             )}
                         </div>
+
                         <button
                             onClick={() => navigate("/products")}
-                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center space-x-2 transition pointer-events-auto"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg font-semibold w-fit transition-all duration-300"
                         >
-                            <span>Shop Now</span> <FaArrowRight />
+                            Shop Now
                         </button>
                     </div>
                 </div>
             ))}
 
-            {/* Left/Right Arrows */}
+            {/* Navigation Arrows */}
             <button
-                onClick={prevSlide}
-                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 z-20"
+                onClick={() =>
+                    setCurrentSlide((prev) =>
+                        prev === 0 ? featuredProducts.length - 1 : prev - 1
+                    )
+                }
+                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition"
             >
-                <FaArrowLeft />
+                <FaArrowLeft size={20} />
             </button>
             <button
-                onClick={nextSlide}
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 z-20"
+                onClick={() =>
+                    setCurrentSlide((prev) => (prev + 1) % featuredProducts.length)
+                }
+                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition"
             >
-                <FaArrowRight />
+                <FaArrowRight size={20} />
             </button>
 
-            {/* Navigation Dots */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+            {/* Dots */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
                 {featuredProducts.map((_, idx) => (
                     <button
                         key={idx}
