@@ -64,16 +64,20 @@ const getOrderById = async (req, res) => {
 
         if (!order) return res.status(404).json({ message: "Order not found." });
 
-        if (order.user.toString() !== req.user._id) {
+        // Compare as strings
+        if (order.user.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: "Access denied." });
         }
 
         res.status(200).json({ order });
     } catch (error) {
+        console.error("Get order by ID error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
+
+// User cancels their own order
 // User cancels their own order
 const cancelOrder = async (req, res) => {
     try {
@@ -82,7 +86,8 @@ const cancelOrder = async (req, res) => {
 
         if (!order) return res.status(404).json({ message: "Order not found." });
 
-        if (order.user.toString() !== req.user._id) {
+        // Compare IDs as strings
+        if (order.user.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: "Access denied." });
         }
 
@@ -95,9 +100,11 @@ const cancelOrder = async (req, res) => {
 
         res.status(200).json({ message: "Order cancelled successfully.", order });
     } catch (error) {
+        console.error("Cancel order error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
+
 
 // Get all orders (admin)
 const getAllOrders = async (req, res) => {
@@ -119,6 +126,7 @@ const getAllOrders = async (req, res) => {
     }
 };
 
+// update order status (admin)
 const updateOrderStatus = async (req, res) => {
     try {
         const { id } = req.params;
