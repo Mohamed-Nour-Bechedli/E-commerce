@@ -3,7 +3,7 @@ const Order = require('../models/order');
 // Create a new order
 const createOrder = async (req, res) => {
     try {
-        const { products, totalAmount, phone } = req.body; 
+        const { products, totalAmount, phone } = req.body;
 
         if (!products || products.length === 0) {
             return res.status(400).json({ message: "No products in the order." });
@@ -29,7 +29,7 @@ const createOrder = async (req, res) => {
             user: req.user._id,
             products: formattedProducts,
             totalAmount,
-            phone, 
+            phone,
         });
 
         const savedOrder = await newOrder.save();
@@ -125,7 +125,7 @@ const updateOrderStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        const validStatus = ["Pending", "Processing", "Shipped", "Delivered"];
+        const validStatus = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
         if (!validStatus.includes(status)) {
             return res.status(400).json({ message: "Invalid status value." });
         }
@@ -133,11 +133,31 @@ const updateOrderStatus = async (req, res) => {
         const order = await Order.findById(id);
         if (!order) return res.status(404).json({ message: "Order not found." });
 
+        // Prevent double stock deduction
+        const wasDelivered = order.status === "Delivered";
+
+        // Update order status
         order.status = status;
         const updatedOrder = await order.save();
 
-        res.status(200).json({ updatedOrder });
+        // If order is newly delivered, decrease product stock
+        if (status === "Delivered" && !wasDelivered) {
+            for (const item of order.products) {
+                const product = await Product.findById(item.productId);
+                if (product) {
+                    product.stock = Math.max(0, product.stock - item.quantity);
+                    await product.save();
+                }
+            }
+        }
+
+        res.status(200).json({
+            message: `Order marked as ${status}`,
+            updatedOrder,
+        });
+
     } catch (error) {
+        console.error("Update order status error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
