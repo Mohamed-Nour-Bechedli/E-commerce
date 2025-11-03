@@ -1,3 +1,6 @@
+import pcGamersImg from "../assets/PC_Gamer.jpg";
+import smartphonesImg from "../assets/Smartphones.jpg";
+import accessoriesImg from "../assets/Accessories.png";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
@@ -11,6 +14,12 @@ const Home = () => {
 
     if (loading) return <Loader />;
 
+    const categories = [
+        { name: "PC Gamers", img: pcGamersImg },
+        { name: "Smartphones", img: smartphonesImg },
+        { name: "Accessories", img: accessoriesImg },
+    ];
+
     return (
         <div className="bg-gray-50 min-h-screen">
             <HeroCarousel />
@@ -22,25 +31,25 @@ const Home = () => {
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {[
-                        { name: "PC Gamers", img: "https://via.placeholder.com/600x400?text=PC+Gamers" },
-                        { name: "Smartphones", img: "https://via.placeholder.com/600x400?text=Smartphones" },
-                        { name: "Accessories", img: "https://via.placeholder.com/600x400?text=Accessories" },
-                    ].map((category) => (
+                    {categories.map((category) => (
                         <Link
                             key={category.name}
                             to={`/category/${category.name}`}
-                            className="relative bg-white rounded-lg shadow-md overflow-hidden group cursor-pointer hover:shadow-xl transition"
+                            className="relative bg-white rounded-lg shadow-md overflow-hidden group cursor-pointer hover:shadow-xl transition-all duration-300 flex flex-col items-center"
                         >
-                            <img
-                                src={category.img}
-                                alt={category.name}
-                                className="w-full h-56 object-cover transform group-hover:scale-105 transition duration-500"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-50 transition flex flex-col items-center justify-center text-white">
-                                <h3 className="text-2xl font-semibold mb-2">{category.name}</h3>
-                                <span className="flex items-center opacity-0 group-hover:opacity-100 transition">
-                                    Discover Now <FaArrowRight className="ml-2" />
+                            {/* Image with fixed height */}
+                            <div className="w-full h-64 flex items-center justify-center">
+                                <img
+                                    src={category.img}
+                                    alt={category.name}
+                                    className="max-h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                                />
+                            </div>
+                            {/* Caption below image */}
+                            <div className="w-full bg-black bg-opacity-50 text-white text-center py-2">
+                                <h3 className="text-lg font-semibold">{category.name}</h3>
+                                <span className="inline-flex items-center mt-1">
+                                    Discover Now <FaArrowRight className="ml-1" />
                                 </span>
                             </div>
                         </Link>
