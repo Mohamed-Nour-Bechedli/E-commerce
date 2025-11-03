@@ -1,23 +1,22 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import {
-    FaHome,
-    FaBoxOpen,
-    FaListAlt,
-    FaSignOutAlt,
-    FaBoxes
-} from "react-icons/fa";
+import { FaHome, FaBoxOpen, FaListAlt, FaSignOutAlt, FaBoxes } from "react-icons/fa";
+import Loader from "../common/Loader";
 
 const AdminLayout = () => {
-    const { logout, user } = useContext(AuthContext);
+    const { logout, user, loading } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // Security fallback — prevent unauthorized access
-    if (!user || user.role !== "admin") {
-        navigate("/");
-        return null;
-    }
+    useEffect(() => {
+        if (!loading && (!user || user.role !== "admin")) {
+            navigate("/");
+        }
+    }, [user, loading, navigate]);
+
+    if (loading) return <Loader />; 
+
+    if (!user || user.role !== "admin") return null;
 
     const handleLogout = () => {
         logout();
@@ -58,7 +57,6 @@ const AdminLayout = () => {
                         <FaBoxOpen /> Create Product
                     </NavLink>
 
-                    {/* New Manage Products Link */}
                     <NavLink
                         to="/admin/manage-products"
                         className={({ isActive }) =>
