@@ -37,7 +37,7 @@ const ProductCard = ({ _id, name, image, price, salePrice, stock = 0 }) => {
                     <div>
                         <h3 className="font-semibold text-gray-900 mb-2">{name}</h3>
 
-                        {/* ✅ Price display logic */}
+                        {/* Price display logic */}
                         {salePrice ? (
                             <div className="flex items-center space-x-2">
                                 <span className="text-gray-500 line-through text-sm">${price.toFixed(2)}</span>
