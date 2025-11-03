@@ -20,13 +20,13 @@ const AdminProtectedRoute = ({ children }) => {
         }
     }, [user, loading]);
 
-    // Still verifying → show loader
+    // Still verifying show loader
     if (loading || checking) return <Loader />;
 
-    // Not logged in → send to login
+    // Not logged in send to login
     if (!user) return <Navigate to="/login" replace />;
 
-    // Logged in but not admin → send to home
+    // Logged in but not admin send to home
     if (user.role !== "admin") return <Navigate to="/" replace />;
 
     // Admin access granted
