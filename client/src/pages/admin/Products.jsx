@@ -9,13 +9,14 @@ const Products = () => {
 
     const [editingProduct, setEditingProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState(""); // search state
+    const [searchQuery, setSearchQuery] = useState("");
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(null); 
 
-    // Filter products whenever products or searchQuery change
+    // Filter products by search
     useEffect(() => {
         const query = searchQuery.toLowerCase();
-        const filtered = products.filter(product =>
+        const filtered = products.filter((product) =>
             product.name.toLowerCase().includes(query) ||
             product.category.toLowerCase().includes(query) ||
             (product.subCategory && product.subCategory.toLowerCase().includes(query)) ||
@@ -24,45 +25,62 @@ const Products = () => {
         setFilteredProducts(filtered);
     }, [searchQuery, products]);
 
-    // Handle Delete
+    // Delete Product
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this product?")) return;
         const success = await deleteProduct(id);
-        if (success) toast.success("✅ Product deleted successfully!");
-        else toast.error("❌ Failed to delete product");
+        if (success) toast.success("Product deleted successfully!");
+        else toast.error("Failed to delete product");
     };
 
-    // Handle Edit click
+    // Edit Modal
     const handleEdit = (product) => {
         setEditingProduct({ ...product });
+        setSelectedImage(null);
         setIsModalOpen(true);
     };
 
-    // Handle Update Submit
+    // Handle image select
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+            setEditingProduct((prev) => ({
+                ...prev,
+                image: URL.createObjectURL(file), 
+            }));
+        }
+    };
+
+    // Update product
     const handleUpdate = async (e) => {
         e.preventDefault();
         if (!editingProduct._id) return toast.error("Invalid product.");
 
-        const updatedData = {
-            name: editingProduct.name,
-            price: editingProduct.price,
-            description: editingProduct.description,
-            category: editingProduct.category,
-            subCategory: editingProduct.subCategory,
-            stock: editingProduct.stock,
-            brand: editingProduct.brand,
-            salePrice: editingProduct.salePrice,
-            isNew: editingProduct.isNew,
-            isFeatured: editingProduct.isFeatured,
-        };
+        const formData = new FormData();
+        formData.append("name", editingProduct.name);
+        formData.append("price", editingProduct.price);
+        formData.append("description", editingProduct.description);
+        formData.append("category", editingProduct.category);
+        formData.append("subCategory", editingProduct.subCategory);
+        formData.append("stock", editingProduct.stock);
+        formData.append("brand", editingProduct.brand || "");
+        formData.append("salePrice", editingProduct.salePrice || "");
+        formData.append("isNew", editingProduct.isNew || false);
+        formData.append("isFeatured", editingProduct.isFeatured || false);
 
-        const res = await updateProduct(editingProduct._id, updatedData);
+        if (selectedImage) {
+            formData.append("image", selectedImage);
+        }
+
+        const res = await updateProduct(editingProduct._id, formData, true); 
         if (res) {
-            toast.success("✅ Product updated successfully!");
+            toast.success("Product updated successfully!");
             setIsModalOpen(false);
             setEditingProduct(null);
+            setSelectedImage(null);
         } else {
-            toast.error("❌ Failed to update product");
+            toast.error("Failed to update product");
         }
     };
 
@@ -97,10 +115,11 @@ const Products = () => {
                             />
                             <h3 className="text-lg font-medium mt-2">{product.name}</h3>
                             <p className="text-gray-600 text-sm">{product.category}</p>
-                            {product.subCategory && <p className="text-gray-500 text-sm">{product.subCategory}</p>}
+                            {product.subCategory && (
+                                <p className="text-gray-500 text-sm">{product.subCategory}</p>
+                            )}
                             <p className="text-blue-600 font-semibold mt-1">${product.price}</p>
 
-                            {/* Icon buttons */}
                             <div className="flex gap-4 mt-4">
                                 <button
                                     onClick={() => handleEdit(product)}
@@ -183,6 +202,26 @@ const Products = () => {
                                 placeholder="Stock"
                                 className="border p-2 rounded"
                             />
+
+                            {/* Image Upload */}
+                            <div className="flex items-center gap-3">
+                                <label className="bg-blue-600 text-white px-3 py-2 rounded cursor-pointer hover:bg-blue-700">
+                                    Choose Image
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                    />
+                                </label>
+                                {editingProduct.image && (
+                                    <img
+                                        src={editingProduct.image}
+                                        alt="Preview"
+                                        className="w-14 h-14 object-cover rounded border"
+                                    />
+                                )}
+                            </div>
 
                             <div className="flex justify-between mt-3">
                                 <button

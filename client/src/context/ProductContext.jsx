@@ -7,7 +7,7 @@ export const ProductContextProvider = ({ children }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch all products from backend
+    // Fetch all products
     const fetchProducts = async () => {
         try {
             const res = await axiosInstance.get("/products");
@@ -23,7 +23,7 @@ export const ProductContextProvider = ({ children }) => {
         fetchProducts();
     }, []);
 
-    // Delete a product globally
+    // Delete product
     const deleteProduct = async (id) => {
         try {
             await axiosInstance.delete(`/products/${id}`);
@@ -35,19 +35,16 @@ export const ProductContextProvider = ({ children }) => {
         }
     };
 
-    // Update product globally
-    const updateProduct = async (id, updatedData) => {
+    // Update product
+    const updateProduct = async (id, updatedData, isMultipart = false) => {
         try {
-            const formData = new FormData();
-            Object.entries(updatedData).forEach(([key, value]) => {
-                formData.append(key, value);
-            });
+            const config = isMultipart
+                ? { headers: { "Content-Type": "multipart/form-data" } }
+                : {};
 
-            const res = await axiosInstance.put(`/products/${id}`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
+            const res = await axiosInstance.put(`/products/${id}`, updatedData, config);
 
-            // Replace updated product in context
+            // Update the product in local state
             setProducts((prev) =>
                 prev.map((p) => (p._id === id ? res.data : p))
             );
