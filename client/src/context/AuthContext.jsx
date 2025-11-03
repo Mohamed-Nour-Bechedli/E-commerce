@@ -10,18 +10,19 @@ export const AuthContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Fetch user profile
     const fetchUserProfile = async () => {
         try {
             const res = await axiosInstance.get("/users/profile");
             const profileData = res.data;
-
-            // Use backend-provided image directly (backend already includes timestamp)
-            profileData.image = profileData.image || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-
+            profileData.image =
+                profileData.image ||
+                "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
             setUser(profileData);
         } catch (error) {
             console.error("Failed to fetch user profile:", error);
+            localStorage.removeItem("token"); 
+        } finally {
+            setLoading(false); 
         }
     };
 
@@ -30,13 +31,15 @@ export const AuthContextProvider = ({ children }) => {
         if (token) {
             try {
                 jwtDecode(token);
-                fetchUserProfile();
+                fetchUserProfile(); 
             } catch (error) {
                 console.error("Token decode error:", error);
                 localStorage.removeItem("token");
+                setLoading(false);
             }
+        } else {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
     const loginUser = async ({ email, password }) => {
@@ -45,8 +48,6 @@ export const AuthContextProvider = ({ children }) => {
             const token = res.data.token;
             localStorage.setItem("token", token);
             await fetchUserProfile();
-
-            // Return user for role-based navigation
             return { success: true, user: res.data.user };
         } catch (error) {
             return {
@@ -56,10 +57,13 @@ export const AuthContextProvider = ({ children }) => {
         }
     };
 
-
     const registerUser = async ({ name, email, password }) => {
         try {
-            const res = await axiosInstance.post("/users/register", { name, email, password });
+            const res = await axiosInstance.post("/users/register", {
+                name,
+                email,
+                password,
+            });
             return { success: true, message: res.data.message };
         } catch (error) {
             return {
@@ -88,14 +92,16 @@ export const AuthContextProvider = ({ children }) => {
             console.error("Email verification failed:", error);
             return {
                 success: false,
-                message: error.response?.data?.message || "Verification failed",
+                message:
+                    error.response?.data?.message || "Verification failed",
             };
         }
     };
 
-    // Update user image in context
     const updateUserImage = (newImage) => {
-        setUser((prevUser) => (prevUser ? { ...prevUser, image: newImage } : null));
+        setUser((prevUser) =>
+            prevUser ? { ...prevUser, image: newImage } : null
+        );
     };
 
     return (
@@ -111,7 +117,7 @@ export const AuthContextProvider = ({ children }) => {
                 fetchUserProfile,
             }}
         >
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };
