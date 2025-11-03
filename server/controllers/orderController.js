@@ -76,8 +76,6 @@ const getOrderById = async (req, res) => {
     }
 };
 
-
-// User cancels their own order
 // User cancels their own order
 const cancelOrder = async (req, res) => {
     try {
