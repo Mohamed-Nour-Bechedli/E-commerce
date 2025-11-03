@@ -1,4 +1,4 @@
-import { useState, useContext, useRef, useEffect } from "react";
+import { useState, useContext, useRef } from "react";
 import { ProductContext } from "../../context/ProductContext";
 import ProductCard from "./ProductCard";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -15,48 +15,40 @@ const ProductTabs = () => {
 
     const scrollLeft = () => {
         if (sliderRef.current) {
-            sliderRef.current.scrollBy({ left: -300, behavior: "smooth" });
+            const cardWidth = sliderRef.current.firstChild.offsetWidth + 24; // card + gap
+            sliderRef.current.scrollBy({ left: -cardWidth, behavior: "smooth" });
         }
     };
 
     const scrollRight = () => {
         if (sliderRef.current) {
-            sliderRef.current.scrollBy({ left: 300, behavior: "smooth" });
+            const cardWidth = sliderRef.current.firstChild.offsetWidth + 24; // card + gap
+            sliderRef.current.scrollBy({ left: cardWidth, behavior: "smooth" });
         }
     };
-
-    // Optional: hide scrollbar on all browsers
-    useEffect(() => {
-        if (sliderRef.current) {
-            sliderRef.current.style.scrollbarWidth = "none"; // Firefox
-            sliderRef.current.style.msOverflowStyle = "none"; // IE 10+
-        }
-    }, []);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             {/* Tabs */}
-            <div className="flex justify-center mb-8 relative">
-                <div className="flex space-x-4 bg-gray-100 rounded-full p-1 shadow-inner">
-                    <button
-                        className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${activeTab === "new"
-                                ? "bg-white shadow text-blue-600"
-                                : "text-gray-600 hover:text-blue-600"
-                            }`}
-                        onClick={() => setActiveTab("new")}
-                    >
-                        New Arrivals
-                    </button>
-                    <button
-                        className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${activeTab === "sales"
-                                ? "bg-white shadow text-blue-600"
-                                : "text-gray-600 hover:text-blue-600"
-                            }`}
-                        onClick={() => setActiveTab("sales")}
-                    >
-                        Sales
-                    </button>
-                </div>
+            <div className="flex justify-center mb-8 space-x-6">
+                <button
+                    className={`px-6 py-2 rounded-full font-medium transition ${activeTab === "new"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                        }`}
+                    onClick={() => setActiveTab("new")}
+                >
+                    New Arrivals
+                </button>
+                <button
+                    className={`px-6 py-2 rounded-full font-medium transition ${activeTab === "sales"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                        }`}
+                    onClick={() => setActiveTab("sales")}
+                >
+                    Sales
+                </button>
             </div>
 
             {/* Carousel */}
@@ -66,23 +58,19 @@ const ProductTabs = () => {
                     {filteredProducts.length > 4 && (
                         <button
                             onClick={scrollLeft}
-                            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-70 shadow-lg p-3 rounded-full hover:bg-blue-500 hover:text-white transition-all"
+                            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/70 hover:bg-white shadow-lg p-3 rounded-full transition backdrop-blur-sm"
                         >
-                            <FaChevronLeft className="text-lg" />
+                            <FaChevronLeft />
                         </button>
                     )}
 
                     {/* Products container */}
                     <div
                         ref={sliderRef}
-                        className="flex space-x-6 overflow-x-auto overflow-y-hidden scroll-smooth py-2 scrollbar-hide"
-                        style={{ scrollbarWidth: "none" }}
+                        className="flex space-x-6 overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide"
                     >
                         {filteredProducts.map((product) => (
-                            <div
-                                key={product._id}
-                                className="min-w-[250px] flex-shrink-0 transform transition duration-300 hover:scale-105"
-                            >
+                            <div key={product._id} className="min-w-[250px] flex-shrink-0 snap-start">
                                 <ProductCard {...product} />
                             </div>
                         ))}
@@ -92,9 +80,9 @@ const ProductTabs = () => {
                     {filteredProducts.length > 4 && (
                         <button
                             onClick={scrollRight}
-                            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white bg-opacity-70 shadow-lg p-3 rounded-full hover:bg-blue-500 hover:text-white transition-all"
+                            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/70 hover:bg-white shadow-lg p-3 rounded-full transition backdrop-blur-sm"
                         >
-                            <FaChevronRight className="text-lg" />
+                            <FaChevronRight />
                         </button>
                     )}
                 </div>
