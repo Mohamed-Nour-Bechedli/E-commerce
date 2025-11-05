@@ -1,16 +1,26 @@
 const Product = require('../models/product');
-const path = require('path');
+const cloudinary = require('../config/cloudinary');
+const deleteFromCloudinary = require('../utils/cloudinaryDelete');
 const fs = require('fs');
+const path = require('path');
 
-// Create a new product
+// Create a new product (upload image to Cloudinary)
 const createProduct = async (req, res) => {
     try {
         const { name, description, price, category, subCategory, stock, brand, salePrice, isNew, isFeatured } = req.body;
 
-        const imagePath = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
+        if (!name || !description || !price || !category || !stock) {
+            return res.status(400).json({ message: "All required fields must be filled" });
+        }
 
-        if (!name || !description || !price || !category || !stock || !imagePath) {
-            return res.status(400).json({ message: "All fields are required" });
+        let imageUrl = null;
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'uploads/products',
+                transformation: [{ width: 800, height: 800, crop: "limit" }]
+            });
+            imageUrl = result.secure_url;
+            fs.unlinkSync(req.file.path); 
         }
 
         const newProduct = await Product.create({
@@ -24,16 +34,16 @@ const createProduct = async (req, res) => {
             salePrice,
             isNew,
             isFeatured,
-            image: imagePath
+            image: imageUrl
         });
 
         res.status(201).json({
             ...newProduct.toObject(),
-            image: newProduct.image ? `${process.env.BASE_URL}${newProduct.image}` : null
+            image: newProduct.image
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
@@ -42,50 +52,43 @@ const createProduct = async (req, res) => {
 const getAllProducts = async (req, res) => {
     try {
         const products = await Product.find();
-        const formattedProducts = products.map(product => ({
-            ...product.toObject(),
-            image: product.image ? `${process.env.BASE_URL}${product.image}` : null
-        }));
-
-        res.status(200).json(formattedProducts);
-
+        res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
-// Get product by ID
+// Get single product by ID
 const getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ message: "Product not found" });
-        }
+        if (!product) return res.status(404).json({ message: "Product not found" });
         res.status(200).json(product);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
-
-// Update product
+// Update product (replace image in Cloudinary if new one uploaded)
 const updateProduct = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ error: "Product not found" });
-        }
-
-        // If new image uploaded → delete old file
-        if (req.file && product.image) {
-            const oldPath = path.join(__dirname, "../", product.image);
-            if (fs.existsSync(oldPath)) {
-                fs.unlinkSync(oldPath);
-            }
-            product.image = path.join("uploads", req.file.filename).replace(/\\/g, "/");
-        }
+        if (!product) return res.status(404).json({ error: "Product not found" });
 
         const { name, description, price, category, subCategory, stock, brand, salePrice, isNew, isFeatured } = req.body;
+
+        if (req.file) {
+            // Delete old Cloudinary image
+            if (product.image) await deleteFromCloudinary(product.image);
+
+            // Upload new image
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'uploads/products',
+                transformation: [{ width: 800, height: 800, crop: "limit" }]
+            });
+            product.image = result.secure_url;
+            fs.unlinkSync(req.file.path);
+        }
 
         if (name) product.name = name;
         if (description) product.description = description;
@@ -102,32 +105,23 @@ const updateProduct = async (req, res) => {
 
         res.status(200).json({
             ...product.toObject(),
-            image: product.image ? `${process.env.BASE_URL}${product.image}` : null
+            image: product.image
         });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message || "failed to update product" });
+        res.status(500).json({ error: error.message || "Failed to update product" });
     }
 };
 
-// Delete product
+// Delete product (remove from Cloudinary + DB)
 const deleteProduct = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ error: "Product not found" });
-        }
+        if (!product) return res.status(404).json({ error: "Product not found" });
 
-        // Delete image file if exists
-        if (product.image) {
-            const imagePath = path.join(__dirname, "../", product.image);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
-        }
+        if (product.image) await deleteFromCloudinary(product.image);
 
-        // Delete product from DB
         await Product.findByIdAndDelete(req.params.id);
 
         res.json({ message: "Product deleted successfully", product });
@@ -137,14 +131,21 @@ const deleteProduct = async (req, res) => {
     }
 };
 
-// file upload endpoint
+// Upload endpoint 
 const uploadSingle = async (req, res) => {
     try {
-        res.json({ file: req.file, body: req.body })
+        res.json({ file: req.file, body: req.body });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
-module.exports = { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct, uploadSingle };
+module.exports = {
+    createProduct,
+    getAllProducts,
+    getProductById,
+    updateProduct,
+    deleteProduct,
+    uploadSingle
+};

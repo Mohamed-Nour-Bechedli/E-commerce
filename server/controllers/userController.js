@@ -2,8 +2,10 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const path = require('path');
+const cloudinary = require('../config/cloudinary');
+const deleteFromCloudinary = require('../utils/cloudinaryDelete');
 const fs = require('fs');
+const path = require('path');
 
 // Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
@@ -19,13 +21,20 @@ const register = async (req, res) => {
     const { name, email, password, role } = req.body;
     try {
         const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: "User already exists!" });
-        }
+        if (existingUser) return res.status(400).json({ message: "User already exists!" });
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const imagePath = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
+        let imageUrl = null;
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'uploads/users',
+                transformation: [{ width: 800, height: 800, crop: "limit" }]
+            });
+            imageUrl = result.secure_url;
+            fs.unlinkSync(req.file.path);
+        }
 
         const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -33,7 +42,7 @@ const register = async (req, res) => {
             name,
             email,
             role,
-            image: imagePath,
+            image: imageUrl,
             password: hashedPassword,
             verified: false
         }).save();
@@ -47,18 +56,17 @@ const register = async (req, res) => {
             html: `<h3>Click <a href="${verifyURL}">here</a> to verify your email</h3>`
         });
 
-        res.status(201).json({ message: "User registered successfully! Please verify your email to login." });
+        res.status(201).json({ message: "User registered successfully! Please verify your email." });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Verify user email
+// Verify email 
 const verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
         const user = await User.findOne({ email: decoded.email });
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
@@ -66,7 +74,7 @@ const verifyEmail = async (req, res) => {
             const authToken = user.generateAuthToken();
             return res.status(200).json({
                 success: true,
-                message: "Email already verified. Logged in automatically.",
+                message: "Email already verified.",
                 token: authToken,
                 user
             });
@@ -74,8 +82,8 @@ const verifyEmail = async (req, res) => {
 
         user.verified = true;
         await user.save();
-
         const authToken = user.generateAuthToken();
+
         res.status(200).json({
             success: true,
             message: "Email verified successfully",
@@ -90,7 +98,7 @@ const verifyEmail = async (req, res) => {
     }
 };
 
-// Login user
+// Login 
 const login = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -125,7 +133,7 @@ const login = async (req, res) => {
     }
 };
 
-// Get all users
+// Get all users 
 const getAllUsers = async (req, res) => {
     try {
         const users = await User.find().select('-password');
@@ -135,7 +143,7 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-// Get profile
+// Get profile 
 const getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
@@ -146,13 +154,11 @@ const getProfile = async (req, res) => {
     }
 };
 
-// Update profile info + password + phone
+// Update profile (image handled by Cloudinary)
 const updateProfile = async (req, res) => {
     try {
         const { name, email, phone, password, currentPassword } = req.body;
         const updateData = {};
-        const image = req.file ? path.join('uploads', req.file.filename).replace(/\\/g, '/') : null;
-
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -165,7 +171,7 @@ const updateProfile = async (req, res) => {
         if (phone) updateData.phone = phone;
 
         if (password) {
-            if (!currentPassword) return res.status(400).json({ message: "Current password is required to change password" });
+            if (!currentPassword) return res.status(400).json({ message: "Current password is required" });
             const validCurrent = await bcrypt.compare(currentPassword, user.password);
             if (!validCurrent) return res.status(400).json({ message: "Current password is incorrect" });
 
@@ -173,10 +179,14 @@ const updateProfile = async (req, res) => {
             updateData.password = await bcrypt.hash(password, salt);
         }
 
-        if (image) {
-            // Only delete if image exists and is not default
-            if (user.image && !user.image.includes("flaticon") && fs.existsSync(user.image)) fs.unlinkSync(user.image);
-            updateData.image = image;
+        // Handle image upload
+        if (req.file) {
+            if (user.image) await deleteFromCloudinary(user.image);
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: "uploads/users"
+            });
+            updateData.image = result.secure_url;
+            fs.unlinkSync(req.file.path);
         }
 
         const updatedUser = await User.findByIdAndUpdate(
@@ -191,50 +201,37 @@ const updateProfile = async (req, res) => {
     }
 };
 
-// Update profile image only
+// Update profile image only (Cloudinary)
 const updateProfileImage = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Delete old image only if exists and is not default
-        if (user.image && !user.image.includes("flaticon") && fs.existsSync(user.image)) {
-            fs.unlinkSync(user.image);
-        }
+        if (user.image) await deleteFromCloudinary(user.image);
 
-        const imagePath = path.join('uploads', req.file.filename).replace(/\\/g, '/');
-
-        const updatedUser = await User.findByIdAndUpdate(
-            req.user._id,
-            { $set: { image: imagePath } },
-            { new: true }
-        ).select('-password');
-
-        // Return full URL with timestamp to prevent caching
-        const fullImageUrl = `${req.protocol}://${req.get("host")}/${imagePath}?t=${Date.now()}`;
-
-        res.status(200).json({
-            image: fullImageUrl,
-            message: "Profile image updated successfully"
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'uploads/users'
         });
+        user.image = result.secure_url;
+        await user.save();
+        fs.unlinkSync(req.file.path);
+
+        res.status(200).json({ image: user.image, message: "Profile image updated successfully" });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
-// Delete profile image
+// Delete profile image (Cloudinary)
 const deleteProfileImage = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Delete old image file only if exists and is not default
-        if (user.image && !user.image.includes("flaticon") && fs.existsSync(user.image)) {
-            fs.unlinkSync(user.image);
-        }
+        if (user.image) await deleteFromCloudinary(user.image);
 
-        // Set to schema default instead of null
         user.image = user.schema.path("image").defaultValue;
         await user.save();
 
