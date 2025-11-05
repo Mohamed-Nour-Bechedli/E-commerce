@@ -132,6 +132,7 @@ Backend structure:
 
 ```
 ├── config
+│   ├── cloudinary.js
 │   └── db.js
 ├── controllers
 │   ├── adminController.js
@@ -153,34 +154,9 @@ Backend structure:
 │   ├── orderRouter.js
 │   ├── productRouter.js
 │   └── userRouter.js
-├── uploads
-│   ├── 1762164778967-Gaming_Laptop_Pro_16.jpg
-│   ├── 1762164838750-Gaming_Laptop_Ultra_18.avif
-│   ├── 1762164903982-Custom_PC_Build_Alpha.webp
-│   ├── 1762164979402-Custom_PC_Build_Beta.webp
-│   ├── 1762165063931-Gaming_Monitor_27_144Hz.webp
-│   ├── 1762165122140-Gaming_Monitor_32_165Hz.webp
-│   ├── 1762165177563-iPhone_15_Pro.webp
-│   ├── 1762165220252-iPhone_15_Plus.jpg
-│   ├── 1762165285090-Samsung_Galaxy_S24.jpg
-│   ├── 1762165344300-Samsung_Galaxy_S24_Ultra.jpg
-│   ├── 1762165391060-OnePlus_12.png
-│   ├── 1762165436300-OnePlus_12_Pro.png
-│   ├── 1762165485781-Mechanical_Gaming_Keyboard.jpg
-│   ├── 1762165529679-Wireless_Mechanical_Keyboard.jpg
-│   ├── 1762165589228-Gaming_Mouse_Pro.webp
-│   ├── 1762165647169-Wireless_Gaming_Mouse.jpg
-│   ├── 1762165732308-Noise_Cancelling_Headphones.webp
-│   ├── 1762165795465-Wireless_Headphones.jpg
-│   ├── 1762165905294-Gaming_Laptop_Lite.jpg
-│   ├── 1762165947180-Custom_PC_Build_Gamma.png
-│   ├── 1762165994178-iPhone_14.png
-│   ├── 1762166054089-Samsung_Galaxy_S23.jpg
-│   ├── 1762166090927-OnePlus_11.png
-│   ├── 1762166127876-Mechanical_Gaming_Keyboard_Mini.jpg
-│   └── 1762166167995-Ergonomic_Mouse.jpg
+├── utils
+│   └── cloudinaryDelete.js
 ├── .gitignore
-├── package-lock.json
 ├── package.json
 └── server.js
 ```
